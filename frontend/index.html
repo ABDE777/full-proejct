@@ -1,0 +1,3563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registre des appels — Sinistre auto</title>
+<link rel="icon" type="image/png" href="./WAFA-IMA.png">
+<link rel="apple-touch-icon" href="./WAFA-IMA.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #F1F5F9;
+    --ink-2: #F8FAFC;
+    --panel: #FFFFFF;
+    --panel-2: #F8FAFC;
+    --line: #E2E8F0;
+    --line-strong: #CBD5E1;
+    --gold: #D97706;
+    --gold-light: #F59E0B;
+    --gold-text: #B45309;
+    --gold-glow: rgba(217, 119, 6, 0.14);
+    --amber-bg: #FFFBEB;
+    --paper: #0F172A;
+    --text: #334155;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --blue: #2563EB;
+    --blue-bg: #EFF6FF;
+    --rust: #C2410C;
+    --rust-bg: #FFF7ED;
+    --red: #DC2626;
+    --red-bg: #FEF2F2;
+    --emerald: #059669;
+    --emerald-bg: #ECFDF5;
+    --radius: 8px;
+    --radius-lg: 14px;
+    --serif: 'Plus Jakarta Sans', sans-serif;
+    --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --ease: cubic-bezier(.16, 1, .3, 1);
+    --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+    --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 4px 10px -5px rgba(15, 23, 42, 0.03);
+    --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: auto; min-height: 100%; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    color: var(--text);
+    line-height: 1.5;
+    background:
+      radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(217, 119, 6, 0.06), transparent 70%),
+      radial-gradient(ellipse 800px 400px at 10% 80%, rgba(37, 99, 235, 0.04), transparent 60%),
+      #F8FAFC;
+    background-attachment: fixed;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .hidden { display: none !important; }
+  a { color: inherit; }
+
+  button, input, select, textarea {
+    transition: all 0.2s var(--ease);
+    font-family: var(--sans);
+  }
+  button:active { transform: scale(0.97); }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* Inline & Global Spinners */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulseGlow { 0%, 100% { opacity: 0.6; transform: scale(0.95); } 50% { opacity: 1; transform: scale(1.15); } }
+  
+  .spinner-sm {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: inline-block; vertical-align: middle; flex-shrink: 0;
+  }
+  .spinner-dark {
+    border-color: rgba(217, 119, 6, 0.25);
+    border-top-color: var(--gold);
+  }
+  
+  .global-loader {
+    position: fixed; top: 18px; left: 50%; transform: translateX(-50%); z-index: 10000;
+    background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(12px);
+    color: #FFFFFF; padding: 10px 22px; border-radius: 30px;
+    font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.3); border: 1px solid rgba(255, 255, 255, 0.15);
+    animation: toastIn 0.25s var(--ease) forwards;
+    pointer-events: none;
+  }
+  .status-pulse {
+    animation: pulseGlow 1.5s ease-in-out infinite;
+  }
+
+  /* User Profile Dropdown Menu */
+  .user-dropdown-container {
+    position: relative; display: inline-block;
+  }
+  .user-pill-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 12px 5px 7px; border-radius: 20px;
+    border: 1px solid var(--line-strong); background: var(--panel);
+    color: var(--paper); font-size: 13px; font-weight: 700; cursor: pointer;
+    box-shadow: var(--shadow-sm); transition: all 0.2s var(--ease);
+  }
+  .user-pill-btn:hover {
+    border-color: var(--gold); background: var(--amber-bg); transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  .user-avatar-badge {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: #FFFFFF; font-weight: 800; font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25); text-transform: uppercase;
+  }
+  .user-pill-arrow { font-size: 11px; color: var(--text-muted); transition: transform 0.2s var(--ease); }
+  .user-dropdown-container.open .user-pill-arrow { transform: rotate(180deg); }
+
+  .user-dropdown-menu {
+    position: absolute; right: 0; top: calc(100% + 8px); z-index: 1000;
+    width: 220px; background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); padding: 8px;
+    box-shadow: var(--shadow-lg); backdrop-filter: blur(12px);
+    animation: screenIn 0.2s var(--ease);
+  }
+  .user-dropdown-header { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
+  .user-avatar-large {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: #FFFFFF; font-weight: 800; font-size: 15px;
+    display: flex; align-items: center; justify-content: center; text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3);
+  }
+  .user-dropdown-fullname { font-size: 13.5px; font-weight: 800; color: var(--paper); line-height: 1.2; }
+  .user-dropdown-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
+  .user-dropdown-divider { height: 1px; background: var(--line); margin: 6px 0; }
+  .user-dropdown-item {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 8px; border: none; background: transparent;
+    font-size: 13px; font-weight: 700; cursor: pointer; text-align: left;
+    transition: all 0.15s var(--ease); color: var(--text);
+  }
+  .user-dropdown-item.logout-item { color: var(--red); }
+  .user-dropdown-item.logout-item:hover { background: var(--red-bg); color: var(--red); }
+
+  /* Toast Notifications */
+  #toast-container {
+    position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+    display: flex; flex-direction: column; gap: 8px; pointer-events: none;
+  }
+  .toast {
+    pointer-events: auto; padding: 13px 20px; border-radius: var(--radius-lg); font-size: 13px; font-weight: 600;
+    color: #FFFFFF; background: #0F172A; box-shadow: 0 12px 30px -5px rgba(15, 23, 42, 0.3);
+    display: flex; align-items: center; gap: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    animation: toastIn 0.3s var(--ease) forwards;
+  }
+  .toast.success { background: #065F46; border-color: #10B981; }
+  .toast.error { background: #991B1B; border-color: #EF4444; }
+  .toast.warning { background: #92400E; border-color: #F59E0B; }
+  .toast.toastOut { animation: toastOut 0.25s ease forwards; }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
+
+  /* ---------- header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line); padding: 14px 40px;
+    box-shadow: 0 4px 20px -5px rgba(15, 23, 42, 0.05);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 16px; cursor: pointer; }
+  .brand-logo {
+    height: 42px; width: auto; max-width: 150px; object-fit: contain;
+    border-radius: 6px; transition: transform 0.3s var(--ease);
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.04));
+  }
+  .brand:hover .brand-logo { transform: scale(1.04); }
+  .brand h1 { font-family: var(--sans); font-size: 19px; font-weight: 800; margin: 0; letter-spacing: -0.02em; color: var(--paper); }
+  .brand .sub { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-top: 1px; }
+  .header-right { display: flex; align-items: center; gap: 18px; }
+  .who { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .who b { color: var(--paper); font-weight: 700; }
+  .who a { color: var(--gold-text); cursor: pointer; text-decoration: none; margin-left: 12px; font-size: 12px; font-weight: 600; }
+  .who a:hover { text-decoration: underline; color: var(--gold); }
+
+  main { max-width: 1600px; margin: 0 auto; padding: 24px 40px 80px; }
+  #view-agent { max-width: 1140px; margin: 0 auto; }
+
+  /* ---------- screen transitions ---------- */
+  .screen {
+    opacity: 0; transform: translateY(12px);
+    animation: screenIn 0.4s var(--ease) forwards;
+  }
+  @keyframes screenIn { to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- login box (unified) ---------- */
+  #view-login { max-width: 440px; margin: 70px auto 0; }
+  .login-box {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 40px;
+    box-shadow: var(--shadow-lg);
+  }
+  .login-box h2 { font-size: 24px; font-weight: 800; color: var(--paper); margin: 0 0 6px; letter-spacing: -0.02em; }
+  .login-box p.hint { font-size: 13.5px; color: var(--text-secondary); margin: 0 0 24px; }
+  
+  select#login-user-select, input#login-password {
+    width: 100%; padding: 13px 16px; font-size: 14px; border: 1px solid var(--line-strong);
+    border-radius: var(--radius); background: var(--panel-2); color: var(--text); font-family: var(--sans); margin-bottom: 16px;
+    transition: all 0.2s var(--ease);
+  }
+  select#login-user-select:focus, input#login-password:focus {
+    outline: none; border-color: var(--gold); background: #FFFFFF;
+    box-shadow: 0 0 0 3.5px var(--gold-glow);
+  }
+  
+  .login-error { font-size: 13px; color: var(--red); margin: -4px 0 16px; font-weight: 600; display: none; }
+  .login-error.show { display: block; }
+  
+  .btn-gold {
+    width: 100%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #FFFFFF; border: none; border-radius: var(--radius); padding: 14px;
+    font-size: 14px; font-weight: 700; letter-spacing: 0.02em; cursor: pointer; font-family: var(--sans);
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+    transition: all 0.2s var(--ease);
+  }
+  .btn-gold:hover { background: linear-gradient(135deg, #FBBF24 0%, #B45309 100%); box-shadow: 0 6px 20px rgba(217, 119, 6, 0.35); }
+  .btn-gold:active { transform: scale(.98); }
+
+  /* ---------- shared cards ---------- */
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 28px 30px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s var(--ease);
+  }
+  .card:hover { border-color: rgba(203, 213, 225, 0.8); box-shadow: var(--shadow-md); }
+  .card + .card { margin-top: 20px; }
+
+  /* ---------- Agent UI/UX Ergonomic Overhaul ---------- */
+  #view-agent { max-width: 1320px; margin: 0 auto; }
+  .agent-layout-grid {
+    display: grid; grid-template-columns: 1fr 340px; gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 980px) {
+    .agent-layout-grid { grid-template-columns: 1fr; }
+  }
+
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+    color: #FFFFFF; font-size: 11px; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .shortcut-tip {
+    margin-left: auto; font-size: 11px; text-transform: none; letter-spacing: 0;
+    color: var(--text-muted); font-weight: 600; font-family: var(--mono);
+  }
+  
+  .form-step-block { margin-top: 24px; }
+  
+  .caller-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px 18px; font-size: 14.5px; font-weight: 700; border-radius: var(--radius);
+  }
+  .caller-icon { font-size: 18px; }
+
+  .motif-group-box {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 16px; margin-bottom: 16px; transition: all 0.2s var(--ease);
+  }
+  .motif-group-box:hover { border-color: rgba(203, 213, 225, 0.9); }
+
+  .motif-group-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+    margin-bottom: 12px; padding-bottom: 0; border-bottom: none; color: var(--paper);
+  }
+  .title-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .title-dot.blue { background: var(--blue); box-shadow: 0 0 6px rgba(37, 99, 235, 0.4); }
+  .title-dot.gold { background: var(--gold); box-shadow: 0 0 6px rgba(217, 119, 6, 0.4); }
+  .title-dot.rust { background: var(--rust); box-shadow: 0 0 6px rgba(194, 65, 12, 0.4); }
+
+  .kbd-badge {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    padding: 3px 8px; border-radius: 5px; background: rgba(255, 255, 255, 0.25);
+    margin-left: 8px; border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .mystats-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .mystats-grid .mini {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px;
+  }
+  .mystats-grid .mini.full { grid-column: span 2; }
+
+  /* Agent Navigation Tabs */
+  .agent-nav-bar {
+    display: flex; gap: 8px; margin-bottom: 20px;
+    border-bottom: 1px solid var(--line); padding-bottom: 12px;
+  }
+  .agent-nav-tab {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 20px;
+    border: 1px solid var(--line-strong); background: var(--panel-2);
+    color: var(--text-secondary); font-size: 13.5px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s var(--ease);
+  }
+  .agent-nav-tab:hover { background: var(--panel); border-color: var(--gold); color: var(--paper); }
+  .agent-nav-tab.active {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: #FFFFFF; border-color: transparent; box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
+  }
+  .tab-badge-num {
+    background: rgba(255, 255, 255, 0.3); color: inherit; font-size: 11px; font-weight: 800;
+    padding: 2px 7px; border-radius: 10px; font-family: var(--mono);
+  }
+  .agent-nav-tab:not(.active) .tab-badge-num {
+    background: var(--line-strong); color: var(--paper);
+  }
+
+  /* Ref Validation Badge */
+  .ref-validation-badge {
+    transition: all 0.2s var(--ease);
+  }
+  .ref-validation-badge.valid {
+    background: #ECFDF5; border: 1px solid #10B981; color: #065F46;
+  }
+  .ref-validation-badge.invalid {
+    background: #FEF2F2; border: 1px solid #EF4444; color: #991B1B;
+  }
+  .ref-validation-badge.info {
+    background: #FFFBEB; border: 1px solid #F59E0B; color: #92400E;
+  }
+
+  /* Modal Overlay */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    animation: screenIn 0.2s var(--ease);
+  }
+  .modal-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 28px; box-shadow: var(--shadow-lg);
+  }
+  .btn-close-modal {
+    background: none; border: none; font-size: 18px; color: var(--text-muted); cursor: pointer; padding: 4px 8px; border-radius: 4px;
+  }
+  .btn-close-modal:hover { color: var(--paper); background: var(--panel-2); }
+
+  /* ---------- welcome banner (agent) ---------- */
+  .welcome-banner {
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+    background: linear-gradient(135deg, #FFFFFF 0%, #FFFBEB 100%);
+    border: 1px solid rgba(217, 119, 6, 0.2); border-radius: var(--radius-lg); padding: 28px 32px; margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+    animation: screenIn 0.5s var(--ease);
+  }
+  .welcome-banner .wb-decor {
+    position: absolute; right: -10px; top: -35px; font-size: 140px; color: var(--gold); opacity: .06;
+    pointer-events: none; line-height: 1;
+  }
+  .welcome-banner .wb-text { position: relative; z-index: 1; }
+  .welcome-banner .wb-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gold-text); font-weight: 800; margin-bottom: 4px; }
+  .welcome-banner .wb-name { font-size: 28px; font-weight: 800; color: var(--paper); margin: 0; letter-spacing: -0.02em; }
+  .welcome-banner .wb-sub { font-size: 13.5px; color: var(--text-secondary); margin: 6px 0 0; }
+  .welcome-banner .wb-stat { position: relative; z-index: 1; text-align: center; flex-shrink: 0; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 24px; box-shadow: var(--shadow-sm); }
+  .welcome-banner .wb-stat-value { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--gold-text); }
+  .welcome-banner .wb-stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 700; margin-top: 2px; }
+
+  /* ---------- agent (codification) view ---------- */
+  label.field-label { display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .ref-required-tag {
+    font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 11px; padding: 3px 10px; border-radius: 12px;
+    background: var(--red-bg); color: var(--red); transition: all 0.2s var(--ease);
+  }
+  .ref-required-tag.optional { background: var(--blue-bg); color: var(--blue); }
+  input#ref-input {
+    width: 100%; font-size: 24px; padding: 16px 20px; border: 1px solid var(--line-strong); border-radius: var(--radius);
+    font-family: var(--mono); font-weight: 700; letter-spacing: 0.02em; background: var(--panel-2); color: var(--paper);
+    transition: all 0.2s var(--ease);
+  }
+  input#ref-input:focus { outline: none; border-color: var(--gold); background: #FFFFFF; box-shadow: 0 0 0 4px var(--gold-glow); }
+
+  /* ---------- caller type (client / agent) ---------- */
+  #caller-type-block { margin-bottom: 24px; }
+  .caller-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .caller-btn {
+    border: 1px solid var(--line); background: var(--panel-2); border-radius: var(--radius);
+    padding: 14px 16px; font-size: 14px; cursor: pointer; color: var(--text-secondary);
+    text-align: center; font-weight: 600; letter-spacing: 0.01em;
+    transition: all 0.2s var(--ease);
+  }
+  .caller-btn:hover { border-color: var(--line-strong); color: var(--text); background: var(--panel); transform: translateY(-1px); }
+  .caller-btn.selected { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); font-weight: 700; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15); }
+
+  /* ---------- comment obligatoire (demande sans suite) ---------- */
+  #comment-block { margin-top: 20px; }
+  #comment-block textarea {
+    width: 100%; min-height: 80px; background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: var(--radius);
+    color: var(--text); font-family: var(--sans); font-size: 13.5px; padding: 12px 14px; resize: vertical;
+    transition: all 0.2s var(--ease);
+  }
+  #comment-block textarea:focus { outline: none; border-color: var(--gold); background: #FFFFFF; box-shadow: 0 0 0 3.5px var(--gold-glow); }
+
+  .motif-groups { margin-top: 28px; display: flex; flex-direction: column; gap: 24px; }
+  .motif-group-title {
+    font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);
+    margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  }
+  .motif-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .motif-btn {
+    text-align: left; border: 1px solid var(--line); background: var(--panel-2); border-radius: var(--radius);
+    padding: 13px 16px; font-size: 13.5px; cursor: pointer; color: var(--text-secondary); font-weight: 500;
+    transition: all 0.2s var(--ease); display: flex; align-items: center; justify-content: space-between;
+  }
+  .motif-btn:hover { border-color: var(--line-strong); color: var(--text); transform: translateY(-1px); background: var(--panel); box-shadow: var(--shadow-sm); }
+  .group-declaration .motif-btn.selected { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); font-weight: 700; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12); }
+  .group-demande .motif-btn.selected { border-color: var(--gold); background: var(--amber-bg); color: var(--gold-text); font-weight: 700; box-shadow: 0 2px 8px rgba(217, 119, 6, 0.12); }
+  .group-reclamation .motif-btn.selected { border-color: var(--rust); background: var(--rust-bg); color: var(--rust); font-weight: 700; box-shadow: 0 2px 8px rgba(194, 65, 12, 0.12); }
+  
+  .motif-key {
+    font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+    background: rgba(148, 163, 184, 0.15); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.2);
+  }
+
+  .submit-row { margin-top: 28px; display: flex; align-items: center; gap: 16px; }
+  #submit-btn {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #FFFFFF; border: none; border-radius: var(--radius); padding: 15px 32px;
+    font-size: 14px; font-weight: 800; letter-spacing: 0.02em; cursor: pointer; font-family: var(--sans);
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
+    transition: all 0.2s var(--ease);
+  }
+  #submit-btn:disabled { background: var(--line-strong); color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
+  #submit-btn:not(:disabled):hover { background: linear-gradient(135deg, #FBBF24 0%, #B45309 100%); box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4); }
+  #submit-btn:not(:disabled):active { transform: scale(.97); }
+
+  .warn-banner {
+    margin-top: 16px; border: 1px solid var(--red); background: var(--red-bg); color: var(--red);
+    border-radius: var(--radius); padding: 14px 18px; font-size: 13.5px; font-weight: 600;
+    max-height: 0; opacity: 0; overflow: hidden; transition: all 0.3s var(--ease);
+  }
+  .warn-banner.show { max-height: 100px; opacity: 1; margin-top: 16px; }
+
+  .recent-list h3 { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 800; margin: 0 0 14px; }
+  .recent-row {
+    display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 13.5px;
+    animation: rowIn 0.35s var(--ease);
+  }
+  @keyframes rowIn { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: translateX(0); } }
+  .recent-row:last-child { border-bottom: none; }
+  .recent-row .ticket { font-family: var(--mono); color: var(--text-muted); font-size: 12px; margin-right: 10px; font-weight: 600; }
+  .recent-row .ref { font-weight: 700; color: var(--paper); font-family: var(--mono); }
+  .recent-row .time { color: var(--text-muted); font-size: 12px; font-family: var(--mono); font-weight: 500; }
+
+  /* ---------- admin ---------- */
+  .admin-toolbar-top { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 18px; }
+  .toolbar-group { display: flex; flex-direction: column; gap: 6px; }
+  .toolbar-group label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 800; }
+  .toolbar-group select, .toolbar-group input {
+    border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 10px 14px; font-size: 13px;
+    background: var(--panel); color: var(--text); font-family: var(--sans); font-weight: 600;
+  }
+  .toolbar-group select:focus, .toolbar-group input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3.5px var(--gold-glow); }
+
+  /* ---------- Admin Sidebar Layout ---------- */
+  .admin-layout { display: flex; gap: 24px; align-items: flex-start; margin-top: 18px; }
+  .admin-sidebar {
+    width: 240px; flex-shrink: 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius-lg); padding: 18px 12px; box-shadow: var(--shadow-sm); position: sticky; top: 90px;
+  }
+  .sidebar-title {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted);
+    font-weight: 800; padding: 4px 12px 12px; border-bottom: 1px solid var(--line); margin-bottom: 10px;
+  }
+  .sidebar-menu { display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 8px;
+    font-size: 13.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer;
+    border: 1px solid transparent; transition: all 0.2s var(--ease); user-select: none;
+  }
+  .sidebar-item:hover { background: var(--panel-2); color: var(--paper); transform: translateX(3px); }
+  .sidebar-item.active {
+    background: var(--amber-bg); color: var(--gold-text); border-color: rgba(217, 119, 6, 0.35);
+    box-shadow: 0 2px 8px var(--gold-glow); font-weight: 700;
+  }
+  .sidebar-item .icon { font-size: 16px; width: 22px; display: flex; justify-content: center; }
+  .sidebar-item .badge-count {
+    margin-left: auto; font-size: 11px; padding: 2px 8px; border-radius: 12px;
+    background: var(--panel-2); color: var(--text-muted); font-weight: 700; font-family: var(--mono);
+  }
+  .sidebar-item.active .badge-count { background: var(--gold); color: #FFFFFF; }
+  .admin-content { flex: 1; min-width: 0; }
+  .admin-tab-pane { display: none; }
+  .admin-tab-pane.active { display: block; animation: screenIn 0.35s var(--ease); }
+  @media (max-width: 860px) {
+    .admin-layout { flex-direction: column; }
+    .admin-sidebar { width: 100%; position: static; }
+    .sidebar-menu { flex-direction: row; overflow-x: auto; padding-bottom: 4px; }
+    .sidebar-item { white-space: nowrap; }
+  }
+  .toolbar-group input { width: 75px; text-align: center; font-family: var(--mono); }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 760px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 22px 24px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s var(--ease);
+  }
+  .stat-card:hover { border-color: var(--line-strong); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+  .stat-card .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; }
+  .stat-card .value { font-family: var(--mono); font-weight: 700; font-size: 32px; margin-top: 8px; color: var(--paper); letter-spacing: -0.02em; }
+  .stat-card.alert .value { color: var(--red); }
+
+  .alert-box {
+    border: 1px solid var(--red); background: var(--red-bg); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 20px;
+    animation: screenIn 0.4s var(--ease);
+  }
+  .alert-box h3 { margin: 0 0 12px; font-size: 13px; color: var(--red); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+  .alert-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 7px 0; color: #991B1B; font-family: var(--mono); border-bottom: 1px dashed rgba(220, 38, 38, 0.2); }
+  .alert-row:last-child { border-bottom: none; }
+
+  .filters { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+  .filters select, .filters input {
+    border: 1px solid var(--line-strong); border-radius: var(--radius); padding: 10px 14px; font-size: 13px;
+    font-family: var(--sans); background: var(--panel-2); color: var(--text); font-weight: 500;
+  }
+  .filters select:focus, .filters input:focus { outline: none; border-color: var(--gold); background: #FFFFFF; box-shadow: 0 0 0 3.5px var(--gold-glow); }
+  .filters input[type="text"] { flex: 1; min-width: 180px; }
+  .btn-outline {
+    border: 1px solid var(--line-strong); background: var(--panel); border-radius: var(--radius); padding: 10px 18px;
+    font-size: 13px; font-weight: 700; cursor: pointer; font-family: var(--sans); color: var(--text);
+    transition: all 0.2s var(--ease); box-shadow: var(--shadow-sm);
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold-text); background: var(--amber-bg); transform: translateY(-1px); }
+
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);
+    font-weight: 800; padding: 12px 14px; border-bottom: 1px solid var(--line-strong); background: var(--panel-2);
+  }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: #F1F5F9; }
+  .ticket-no { font-family: var(--mono); color: var(--text-muted); font-size: 12px; font-weight: 600; }
+  .badge { display: inline-block; padding: 4px 11px; border-radius: 6px; font-size: 11.5px; font-weight: 700; border: 1px solid; }
+  .badge-declaration { background: var(--blue-bg); color: var(--blue); border-color: rgba(37, 99, 235, 0.3); }
+  .badge-demande { background: var(--amber-bg); color: var(--gold-text); border-color: rgba(217, 119, 6, 0.3); }
+  .badge-reclamation { background: var(--rust-bg); color: var(--rust); border-color: rgba(194, 65, 12, 0.3); }
+  .badge-caller { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; border: 1px solid var(--line-strong); color: var(--text-secondary); background: var(--panel-2); }
+  .badge-caller.client { border-color: rgba(37, 99, 235, 0.4); color: var(--blue); background: var(--blue-bg); }
+  .badge-caller.agent { border-color: rgba(194, 65, 12, 0.4); color: var(--rust); background: var(--rust-bg); }
+  .ref-cell { font-family: var(--mono); font-weight: 600; }
+  .ref-hot { color: var(--red); font-weight: 800; }
+  .ref-none { color: var(--text-muted); font-style: italic; }
+  .comment-cell { max-width: 240px; font-size: 12.5px; color: var(--text-secondary); white-space: normal; }
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); font-size: 13.5px; font-weight: 500; }
+
+  .account-form { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .account-form input, .account-form select { padding: 11px 15px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--panel-2); color: var(--text); font-size: 13.5px; font-family: var(--sans); }
+  .account-form input { flex: 2; min-width: 150px; }
+  .account-form select { flex: 1; min-width: 120px; }
+  .account-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; animation: rowIn 0.3s var(--ease); }
+  .account-row:last-child { border-bottom: none; }
+  .account-row .role-badge { font-size: 10.5px; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; font-weight: 800; margin-left: 10px; font-family: var(--sans); }
+  .account-row .role-badge.agent { background: var(--blue-bg); color: var(--blue); }
+  .account-row .role-badge.admin { background: var(--amber-bg); color: var(--gold-text); }
+  .account-row .remove { color: var(--red); cursor: pointer; font-size: 12.5px; font-weight: 700; background: none; border: none; font-family: var(--sans); }
+  .account-row .remove:hover { text-decoration: underline; }
+  .section-title { font-size: 18px; font-weight: 800; color: var(--paper); margin: 0 0 4px; letter-spacing: -0.01em; }
+  .section-hint { font-size: 12.5px; color: var(--text-muted); margin: 0 0 20px; }
+  .account-row .pass-hint { color: var(--text-muted); font-size: 11.5px; font-family: var(--mono); margin-left: 10px; }
+
+  /* ---------- success state ---------- */
+  #codif-success { text-align: center; padding: 30px 10px 16px; }
+  #codif-success .check {
+    width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--gold); margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--gold-text); background: var(--amber-bg);
+    box-shadow: 0 0 25px var(--gold-glow);
+    animation: popIn 0.4s var(--ease);
+  }
+  @keyframes popIn { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+  #codif-success .ticket-big { font-family: var(--mono); font-size: 28px; font-weight: 800; color: var(--paper); letter-spacing: 0.02em; }
+  #codif-success .ref-echo { font-size: 14px; color: var(--text-secondary); margin: 8px 0 28px; }
+  #codif-success .ref-echo b { color: var(--gold-text); font-family: var(--mono); font-weight: 700; }
+  #new-codif-btn {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #FFFFFF; border: none; border-radius: var(--radius); padding: 15px 32px;
+    font-size: 14px; font-weight: 800; letter-spacing: 0.02em; cursor: pointer; font-family: var(--sans);
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.3);
+    transition: all 0.2s var(--ease);
+  }
+  #new-codif-btn:hover { background: linear-gradient(135deg, #FBBF24 0%, #B45309 100%); box-shadow: 0 6px 20px rgba(217, 119, 6, 0.4); }
+  #new-codif-btn:active { transform: scale(.97); }
+
+  /* ---------- leaderboard / report rows (admin) ---------- */
+  .leaderboard { margin-bottom: 18px; }
+  .leaderboard-row {
+    display: flex; align-items: center; gap: 14px; padding: 10px 12px; border-radius: var(--radius);
+    transition: background 0.15s; font-size: 13.5px;
+  }
+  .leaderboard-row:hover { background: var(--panel-2); }
+  .leaderboard-row.r1 { font-weight: 700; }
+  .leaderboard-row .rank { font-family: var(--mono); width: 22px; color: var(--text-muted); font-size: 12.5px; font-weight: 700; }
+  .leaderboard-row.r1 .rank { color: var(--gold-text); }
+  .leaderboard-row .name { width: 180px; flex-shrink: 0; color: var(--paper); font-weight: 600; }
+  .leaderboard-row .bar-wrap { flex: 1; background: var(--panel-2); height: 8px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+  .leaderboard-row .bar { height: 100%; background: linear-gradient(90deg, #F59E0B 0%, #D97706 100%); border-radius: 6px; transition: width 0.6s var(--ease); }
+  .leaderboard-row .count { font-family: var(--mono); width: 45px; text-align: right; font-weight: 700; color: var(--paper); }
+
+  /* ---------- ref memory ---------- */
+  .ref-memory {
+    margin-top: 16px; border: 1px solid var(--line); background: var(--panel-2); border-radius: var(--radius);
+    padding: 13px 16px; font-size: 13px; color: var(--text-secondary); display: none;
+  }
+  .ref-memory.show { display: block; }
+  .ref-memory .rm-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 800; margin-bottom: 8px; }
+  .ref-memory .rm-row { display: flex; justify-content: space-between; padding: 4px 0; font-family: var(--mono); font-size: 12.5px; }
+
+  /* ---------- mini stats perso ---------- */
+  .mystats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .mystats-grid .mini { background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; }
+  .mystats-grid .mini .label { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; }
+  .mystats-grid .mini .value { font-family: var(--mono); font-size: 24px; font-weight: 700; color: var(--paper); margin-top: 6px; }
+
+  /* ---------- success quote ---------- */
+  #success-quote { font-size: 13px; color: var(--text-secondary); font-style: italic; max-width: 360px; margin: 0 auto 24px; line-height: 1.55; }
+
+  /* ---------- rapport détaillé ---------- */
+  .report-compare { display: flex; gap: 24px; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .rc-block { flex: 1; min-width: 130px; }
+  .rc-block .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 800; }
+  .rc-block .value { font-family: var(--mono); font-size: 26px; font-weight: 700; color: var(--paper); margin-top: 4px; }
+  .delta { font-family: var(--mono); font-size: 13.5px; font-weight: 700; padding: 4px 12px; border-radius: 14px; }
+  .delta.up { color: var(--gold-text); background: var(--amber-bg); border: 1px solid rgba(217, 119, 6, 0.3); }
+  .delta.down { color: var(--blue); background: var(--blue-bg); border: 1px solid rgba(37, 99, 235, 0.3); }
+  .report-section-title {
+    font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 800;
+    margin: 22px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--line);
+  }
+  .report-section-title:first-child { margin-top: 0; }
+  .spike-note { margin-top: 12px; font-size: 12.5px; color: #991B1B; background: var(--red-bg); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: var(--radius); padding: 10px 14px; font-weight: 500; }
+
+  /* ---------- dossiers à risque ---------- */
+  .risk-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-row .ref { font-family: var(--mono); color: var(--paper); font-weight: 600; }
+  .risk-row .count { font-family: var(--mono); color: var(--red); font-weight: 800; font-size: 12.5px; }
+
+  /* ---------- agent detail panel ---------- */
+  .agent-detail { margin-top: 12px; padding-top: 16px; border-top: 1px dashed var(--line-strong); display: none; }
+  .agent-detail.show { display: block; animation: screenIn 0.3s var(--ease); }
+  .agent-detail .ad-stats { display: flex; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; }
+  .agent-detail .ad-stats .m { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .agent-detail .ad-stats .m b { color: var(--gold-text); font-family: var(--mono); font-weight: 700; }
+  .agent-detail textarea {
+    width: 100%; min-height: 64px; background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: var(--radius);
+    color: var(--text); font-family: var(--sans); font-size: 13px; padding: 10px 14px; resize: vertical;
+  }
+  .agent-detail textarea:focus { outline: none; border-color: var(--gold); background: #FFFFFF; box-shadow: 0 0 0 3.5px var(--gold-glow); }
+  .agent-detail .ad-save { margin-top: 10px; }
+  .leaderboard-row { cursor: pointer; }
+  .account-row .name-btn { cursor: pointer; font-weight: 700; }
+  .account-row .name-btn:hover { color: var(--gold-text); }
+
+  /* ---------- ref note ---------- */
+  .note-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 13px; margin-left: 6px; padding: 2px 6px; border-radius: 4px; transition: all 0.15s; }
+  .note-btn:hover { color: var(--gold-text); background: var(--amber-bg); }
+  .note-btn.has-note { color: var(--gold-text); font-weight: 700; }
+  .note-inline { display: none; margin-top: 8px; }
+  .note-inline.show { display: flex; gap: 8px; }
+  .note-inline input { flex: 1; font-size: 12px; padding: 6px 10px; background: var(--panel-2); border: 1px solid var(--line-strong); border-radius: 4px; color: var(--text); }
+  .note-inline input:focus { outline: none; border-color: var(--gold); background: #FFFFFF; }
+  .note-inline button { font-size: 12px; font-weight: 700; padding: 5px 12px; border: none; background: var(--gold); color: #FFFFFF; border-radius: 4px; cursor: pointer; box-shadow: var(--shadow-sm); }
+  .note-inline button:hover { background: #B45309; }
+
+  /* ---------- courbe horaire ---------- */
+  .hourly-chart { display: flex; align-items: flex-end; gap: 4px; height: 160px; padding-top: 16px; }
+  .hourly-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .hourly-bar { width: 100%; background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%); border-radius: 3px 3px 0 0; min-height: 2px; transition: height 0.5s var(--ease), background 0.2s; }
+  .hourly-col:hover .hourly-bar { background: linear-gradient(180deg, #FBBF24 0%, #B45309 100%); }
+  .hourly-label { font-size: 10px; color: var(--text-muted); margin-top: 6px; font-family: var(--mono); font-weight: 600; }
+  .hourly-peak { font-size: 12.5px; color: var(--gold-text); font-weight: 700; margin-top: 12px; }
+
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-track { background: #F1F5F9; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+  /* =========================================================================
+     RESPONSIVE DESIGN (MOBILE & TABLET ADAPTATIONS)
+     ========================================================================= */
+
+  /* Tablets & Small Laptops (max-width: 1024px) */
+  @media (max-width: 1024px) {
+    header { padding: 12px 20px; }
+    .main-title { font-size: 16px; }
+    .agent-layout-grid { grid-template-columns: 1fr; gap: 20px; }
+    .agent-side-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .admin-layout { grid-template-columns: 1fr; }
+    .admin-sidebar {
+      position: static; width: 100%; border-right: none; border-bottom: 1px solid var(--line);
+      padding: 12px 16px;
+    }
+    .sidebar-menu { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 4px; }
+    .sidebar-item { flex-shrink: 0; padding: 8px 14px; }
+    .charts-dashboard-grid { grid-template-columns: 1fr !important; }
+  }
+
+  /* Mobiles (max-width: 768px) */
+  @media (max-width: 768px) {
+    body { padding-bottom: 30px; }
+    header { padding: 10px 14px; flex-wrap: wrap; gap: 10px; }
+    .logo-container img { height: 32px; }
+    .main-title { font-size: 14.5px; }
+
+    .welcome-banner { padding: 20px; flex-direction: column; align-items: flex-start; gap: 14px; }
+    .wb-stat { align-self: flex-start; text-align: left; }
+    .wb-stat-value { font-size: 28px; }
+
+    .agent-nav-bar { flex-direction: column; gap: 8px; }
+    .agent-nav-tab { width: 100%; justify-content: center; }
+
+    .ref-segmented-builder { flex-direction: column; gap: 8px; }
+    .ref-segmented-builder > div { width: 100% !important; min-width: 100% !important; }
+
+    .motif-grid { grid-template-columns: 1fr !important; }
+    .caller-type-grid { grid-template-columns: 1fr; }
+
+    .agent-side-col { grid-template-columns: 1fr; }
+
+    .mystats-grid { grid-template-columns: 1fr 1fr; }
+    .mystats-grid .mini.full { grid-column: span 2; }
+
+    .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    table { min-width: 650px; }
+
+    .modal-card { padding: 20px; width: 95%; }
+
+    .stat-grid { grid-template-columns: 1fr 1fr; }
+    
+    .admin-toolbar-top { flex-direction: column; align-items: stretch; gap: 10px; }
+    .toolbar-group select, .toolbar-group input { width: 100%; }
+
+    .filters { flex-direction: column; align-items: stretch; }
+    .filters input, .filters select, .filters button { width: 100%; }
+
+    .login-box { padding: 24px 18px; }
+    .brand-seal { width: 64px; height: 64px; font-size: 28px; }
+  }
+
+  /* Small Mobile Phones (max-width: 480px) */
+  @media (max-width: 480px) {
+    main { padding: 12px 10px; }
+    .card { padding: 16px 14px; }
+    .stat-grid { grid-template-columns: 1fr; }
+    .mystats-grid { grid-template-columns: 1fr; }
+    .mystats-grid .mini.full { grid-column: span 1; }
+    .wb-name { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="global-loader" class="global-loader hidden">
+  <span class="spinner-sm"></span>
+  <span id="loader-text">Chargement...</span>
+</div>
+
+<header>
+  <div class="brand" id="brand-home">
+    <img src="./WAFA-IMA.png" alt="Wafa IMA Assistance Logo" class="brand-logo">
+    <div>
+      <h1>Registre des appels</h1>
+      <div class="sub">Sinistre automobile — codification des motifs</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid var(--line);background:var(--panel-2);" id="db-status">
+      <span id="db-status-dot" style="width:7px;height:7px;border-radius:50%;background:#EAB308;"></span>
+      <span id="db-status-text" style="color:var(--text-muted);font-weight:600;">Chargement...</span>
+    </div>
+    <div class="user-dropdown-container hidden" id="user-menu-box">
+      <button type="button" class="user-pill-btn" id="user-pill-trigger">
+        <span class="user-avatar-badge" id="user-avatar-initial">U</span>
+        <span class="user-pill-name" id="user-pill-name">Utilisateur</span>
+        <span class="role-badge admin" id="user-pill-role">Admin</span>
+        <span class="user-pill-arrow">▾</span>
+      </button>
+      <div class="user-dropdown-menu hidden" id="user-dropdown-content">
+        <div class="user-dropdown-header">
+          <div class="user-avatar-large" id="user-avatar-large">U</div>
+          <div class="user-dropdown-info">
+            <div class="user-dropdown-fullname" id="user-dropdown-fullname">Utilisateur</div>
+            <div class="user-dropdown-sub" id="user-dropdown-sub">Session active</div>
+          </div>
+        </div>
+        <div class="user-dropdown-divider"></div>
+        <button type="button" class="user-dropdown-item logout-item" id="logout-dropdown-btn">
+          <span class="icon">🚪</span>
+          <span>Se déconnecter</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <section id="view-login" class="screen">
+    <div class="login-box">
+      <h2>Connexion</h2>
+      <p class="hint">Sélectionnez votre identifiant pour accéder au registre.</p>
+      
+      <form id="login-form" onsubmit="return false;">
+        <label class="field-label">Identifiant / Nom</label>
+        <select id="login-user-select" name="username">
+          <option value="">Chargement des comptes...</option>
+        </select>
+        
+        <label class="field-label">Mot de passe</label>
+        <input id="login-password" name="password" type="password" placeholder="Mot de passe" autocomplete="current-password">
+        
+        <div class="login-error" id="login-error">Mot de passe incorrect.</div>
+        <button type="submit" class="btn-gold" id="login-btn">Se connecter</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="view-agent" class="screen hidden">
+    <div class="welcome-banner">
+      <div class="wb-decor">✦</div>
+      <div class="wb-text">
+        <div class="wb-eyebrow" id="wb-eyebrow">Bonjour</div>
+        <h2 class="wb-name" id="wb-name">—</h2>
+        <p class="wb-sub">Prêt(e) à traiter les appels du jour avec précision et rapidité.</p>
+      </div>
+      <div class="wb-stat">
+        <div class="wb-stat-value" id="session-count">0</div>
+        <div class="wb-stat-label">codifiés aujourd'hui</div>
+      </div>
+    </div>
+
+    <!-- Agent Navigation Tabs -->
+    <div class="agent-nav-bar">
+      <button type="button" class="agent-nav-tab active" id="agent-tab-btn-codif">
+        <span>⚡ Codifier un appel</span>
+      </button>
+      <button type="button" class="agent-nav-tab" id="agent-tab-btn-history">
+        <span>📜 Historique de mes appels</span>
+        <span class="tab-badge-num" id="agent-history-badge">0</span>
+      </button>
+    </div>
+
+    <!-- PANE 1: CODIFICATION FORM -->
+    <div id="agent-pane-codif" class="agent-pane">
+      <div class="agent-layout-grid">
+        <!-- LEFT COLUMN: Codification Form -->
+        <div class="agent-main-col">
+          <div class="card codif-card">
+            <div id="codif-form">
+              
+              <!-- Step 1: Caller Type -->
+              <div id="caller-type-block">
+                <label class="field-label">
+                  <span class="step-num">1</span>
+                  <span>Qui appelle ?</span>
+                  <span class="ref-required-tag" id="caller-required-tag">Obligatoire</span>
+                </label>
+                <div class="caller-type-grid">
+                  <button type="button" class="caller-btn" data-type="client">
+                    <span class="caller-icon">👤</span> Client
+                  </button>
+                  <button type="button" class="caller-btn" data-type="agent">
+                    <span class="caller-icon">🎧</span> Agent / Expert
+                  </button>
+                </div>
+              </div>
+
+              <!-- Step 2: Reference -->
+              <div class="form-step-block">
+                <label class="field-label">
+                  <span class="step-num">2</span>
+                  <span>Référence du sinistre</span>
+                  <span class="ref-required-tag" id="ref-required-tag">Obligatoire</span>
+                </label>
+
+                <!-- Guided 3-Part Segmented Helper -->
+                <div class="ref-segmented-builder" id="ref-segmented-builder" style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+                  <div style="flex:1.2;min-width:140px;">
+                    <span style="font-size:10.5px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:3px;">1. CODE USAGE</span>
+                    <select id="ref-seg-usage" style="width:100%;padding:8px 10px;font-size:12.5px;border-radius:6px;border:1px solid var(--line-strong);background:var(--panel-2);color:var(--text);font-weight:600;">
+                      <option value="">Sélectionner...</option>
+                      <option value="08">08 - Personne (Particulier)</option>
+                      <option value="09">09 - Commercial (Utilitaire)</option>
+                      <option value="10">10 - Moto</option>
+                      <option value="12">12 - Flotte</option>
+                    </select>
+                  </div>
+                  <div style="width:130px;">
+                    <span style="font-size:10.5px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:3px;">2. ANNÉE</span>
+                    <select id="ref-seg-year" style="width:100%;padding:8px 10px;font-size:12.5px;border-radius:6px;border:1px solid var(--line-strong);background:var(--panel-2);color:var(--text);font-weight:600;">
+                    </select>
+                  </div>
+                  <div style="flex:1.5;min-width:160px;">
+                    <span style="font-size:10.5px;font-weight:700;color:var(--text-muted);display:block;margin-bottom:3px;">3. N° CHRONO (4 à 7 chiffres)</span>
+                    <input type="text" id="ref-seg-chrono" inputmode="numeric" pattern="[0-9]*" maxlength="7" placeholder="Ex: 123456" style="width:100%;padding:8px 10px;font-size:12.5px;border-radius:6px;border:1px solid var(--line-strong);background:var(--panel-2);color:var(--text);font-weight:600;">
+                  </div>
+                </div>
+
+                <!-- Complete Output Reference Input -->
+                <div class="ref-input-wrap">
+                  <input id="ref-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="13" placeholder="Ex : 082026123456" autocomplete="off" style="font-family:var(--mono);font-size:16px;font-weight:700;letter-spacing:1px;">
+                </div>
+
+                <!-- Live Validation Status Badge -->
+                <div id="ref-validation-badge" class="ref-validation-badge" style="display:none;margin-top:8px;font-size:12px;padding:8px 12px;border-radius:6px;font-weight:600;"></div>
+
+                <div id="warn-banner" class="warn-banner"></div>
+                <div id="ref-memory" class="ref-memory"></div>
+              </div>
+
+              <!-- Step 3: Motif selection -->
+              <div class="form-step-block">
+                <label class="field-label">
+                  <span class="step-num">3</span>
+                  <span>Motif de l'appel</span>
+                  <span class="shortcut-tip">Raccourcis clavier [Q] à [H]</span>
+                </label>
+                <div class="motif-groups">
+                  <div class="motif-group-box">
+                    <div class="motif-group-title">
+                      <span class="title-dot blue"></span> Déclaration &amp; suivi de dossier
+                    </div>
+                    <div class="motif-grid group-declaration" data-group="declaration"></div>
+                  </div>
+                  <div class="motif-group-box">
+                    <div class="motif-group-title">
+                      <span class="title-dot gold"></span> Demandes
+                    </div>
+                    <div class="motif-grid group-demande" data-group="demande"></div>
+                  </div>
+                  <div class="motif-group-box">
+                    <div class="motif-group-title">
+                      <span class="title-dot rust"></span> Réclamations
+                    </div>
+                    <div class="motif-grid group-reclamation" data-group="reclamation"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4: Comment (conditional) -->
+              <div id="comment-block" class="hidden form-step-block">
+                <label class="field-label">
+                  <span class="step-num">4</span>
+                  <span>Commentaire</span>
+                  <span class="ref-required-tag">Obligatoire</span>
+                </label>
+                <textarea id="comment-input" placeholder="Précisez la raison de la demande sans suite..."></textarea>
+              </div>
+
+              <!-- Submit Row -->
+              <div class="submit-row">
+                <button id="submit-btn" disabled>
+                  <span>Codifier l'appel</span>
+                  <span class="kbd-badge">Entrée ↵</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Success Screen -->
+            <div id="codif-success" class="hidden">
+              <div class="check">✓</div>
+              <div class="ticket-big" id="success-ticket"></div>
+              <div class="ref-echo">Référence <b id="success-ref"></b> codifiée avec succès</div>
+              <div id="success-quote"></div>
+              <button id="new-codif-btn">+ Nouvelle codification <span class="kbd-badge">Entrée ↵</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Stats & Recent Calls -->
+        <div class="agent-side-col">
+          <div class="card agent-stats-card">
+            <div class="section-title" style="font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <span>📊</span> Mes statistiques
+            </div>
+            <div class="mystats-grid">
+              <div class="mini">
+                <div class="label">Aujourd'hui</div>
+                <div class="value" id="my-today">0</div>
+              </div>
+              <div class="mini">
+                <div class="label">7 derniers jours</div>
+                <div class="value" id="my-week">0</div>
+              </div>
+              <div class="mini full">
+                <div class="label">Top motif personnel</div>
+                <div class="value" id="my-top-motif" style="font-size:13px;line-height:1.3;">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="recent-list card">
+            <div class="section-title" style="font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <span>⏱️</span> Appels récents
+            </div>
+            <div id="recent-container">
+              <p class="empty-state">Aucun appel codifié dans cette session.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANE 2: AGENT HISTORY & EDITING -->
+    <div id="agent-pane-history" class="agent-pane hidden">
+      <div class="card">
+        <div class="section-title" style="font-size:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+          <span>Historique complet de vos appels codifiés</span>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <select id="agent-history-period" style="padding:6px 12px;font-size:12.5px;border-radius:6px;border:1px solid var(--line-strong);background:var(--panel-2);color:var(--text);">
+              <option value="today">Aujourd'hui</option>
+              <option value="week">7 derniers jours</option>
+              <option value="month">30 derniers jours</option>
+              <option value="all">Tout l'historique</option>
+            </select>
+            <input id="agent-history-search" type="text" placeholder="Rechercher réf ou ticket..." style="padding:6px 12px;font-size:12.5px;border-radius:6px;border:1px solid var(--line-strong);background:var(--panel-2);color:var(--text);width:220px;">
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>N° Ticket</th>
+                <th>Référence</th>
+                <th>Motif</th>
+                <th>Qui</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Commentaire</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="agent-history-tbody"></tbody>
+          </table>
+        </div>
+        <div id="agent-history-empty" class="empty-state hidden">Aucun appel trouvé dans votre historique.</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- AGENT EDIT ENTRY MODAL -->
+  <div id="agent-edit-modal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width: 520px; width: 90%;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--paper);">Modifier l'appel codifié</h3>
+        <button type="button" class="btn-close-modal" id="close-agent-edit-modal">✕</button>
+      </div>
+
+      <form id="agent-edit-form" onsubmit="return false;">
+        <input type="hidden" id="edit-entry-id">
+
+        <label class="field-label">Référence du sinistre</label>
+        <input type="text" id="edit-entry-ref" placeholder="Référence..." style="width:100%;padding:10px 14px;font-size:13.5px;border:1px solid var(--line-strong);border-radius:6px;background:var(--panel-2);color:var(--text);margin-bottom:14px;">
+
+        <label class="field-label">Qui a appelé ?</label>
+        <select id="edit-entry-caller" style="width:100%;padding:10px 14px;font-size:13.5px;border:1px solid var(--line-strong);border-radius:6px;background:var(--panel-2);color:var(--text);margin-bottom:14px;">
+          <option value="client">Client</option>
+          <option value="agent">Agent / Expert</option>
+        </select>
+
+        <label class="field-label">Motif de l'appel</label>
+        <select id="edit-entry-motif" style="width:100%;padding:10px 14px;font-size:13.5px;border:1px solid var(--line-strong);border-radius:6px;background:var(--panel-2);color:var(--text);margin-bottom:14px;"></select>
+
+        <label class="field-label">Commentaire / Précision</label>
+        <textarea id="edit-entry-comment" placeholder="Commentaire..." style="width:100%;min-height:80px;padding:10px 14px;font-size:13px;border:1px solid var(--line-strong);border-radius:6px;background:var(--panel-2);color:var(--text);margin-bottom:18px;"></textarea>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button type="button" class="btn-outline" id="cancel-agent-edit-btn" style="padding:8px 16px;">Annuler</button>
+          <button type="submit" class="btn-gold" id="save-agent-edit-btn" style="width:auto;padding:8px 20px;">Enregistrer la modification</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <section id="view-admin" class="screen hidden">
+    <div class="admin-toolbar-top">
+      <div class="toolbar-group">
+        <label>Période d'analyse</label>
+        <select id="filter-period">
+          <option value="today">Aujourd'hui</option>
+          <option value="week">7 derniers jours</option>
+          <option value="month">30 derniers jours</option>
+          <option value="all">Toute la période</option>
+        </select>
+      </div>
+      <div class="toolbar-group">
+        <label>Seuil d'alerte (répétitions)</label>
+        <input id="threshold-input" type="number" min="2" max="20" value="3">
+      </div>
+    </div>
+
+    <div class="admin-layout">
+      <!-- SIDEBAR -->
+      <aside class="admin-sidebar">
+        <div class="sidebar-title">Menu Administration</div>
+        <div class="sidebar-menu">
+          <div class="sidebar-item active" data-tab="tab-dashboard">
+            <span class="icon">📊</span>
+            <span>Tableau de bord</span>
+          </div>
+          <div class="sidebar-item" data-tab="tab-appels">
+            <span class="icon">📋</span>
+            <span>Registre des appels</span>
+          </div>
+          <div class="sidebar-item" data-tab="tab-risques">
+            <span class="icon">⚠️</span>
+            <span>Dossiers à risque</span>
+            <span class="badge-count" id="sidebar-hot-badge">0</span>
+          </div>
+          <div class="sidebar-item" data-tab="tab-top">
+            <span class="icon">🏆</span>
+            <span>Top chargés</span>
+          </div>
+          <div class="sidebar-item" data-tab="tab-comptes">
+            <span class="icon">👥</span>
+            <span>Gestion des comptes</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT PANES -->
+      <div class="admin-content">
+
+        <!-- Tab 1: Dashboard -->
+        <div id="tab-dashboard" class="admin-tab-pane active">
+          <div class="stat-grid">
+            <div class="stat-card"><div class="label">Appels — période</div><div class="value" id="stat-total">0</div></div>
+            <div class="stat-card"><div class="label">Appels aujourd'hui</div><div class="value" id="stat-today">0</div></div>
+            <div class="stat-card alert"><div class="label">Références en alerte</div><div class="value" id="stat-hot">0</div></div>
+            <div class="stat-card"><div class="label">Motif dominant</div><div class="value" id="stat-top-motif" style="font-size:15px;">—</div></div>
+          </div>
+
+          <!-- Professional Analytics Charts Grid -->
+          <div class="charts-dashboard-grid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(440px, 1fr));gap:20px;margin-bottom:20px;">
+            
+            <!-- Chart 1: Hourly Activity Line Area -->
+            <div class="card chart-card">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div class="section-title" style="font-size:15px;margin:0;">📈 Volume horaire des appels</div>
+                <span id="hourly-peak-badge" style="font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:12px;background:rgba(217,119,6,0.12);color:#D97706;border:1px solid rgba(217,119,6,0.3);">Pic : —</span>
+              </div>
+              <div class="section-hint" id="hourly-period-hint" style="margin-bottom:14px;">Distribution heure par heure (00h – 23h) sur la période sélectionnée.</div>
+              <div style="position:relative;height:240px;width:100%;">
+                <canvas id="chart-hourly-canvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 2: Motifs Distribution Donut -->
+            <div class="card chart-card">
+              <div class="section-title" style="font-size:15px;margin-bottom:10px;">📊 Répartition par motif d'appel</div>
+              <div class="section-hint" style="margin-bottom:14px;">Proportion des motifs enregistrés sur la période.</div>
+              <div style="position:relative;height:240px;width:100%;">
+                <canvas id="chart-motifs-canvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 3: Caller Type Pie -->
+            <div class="card chart-card">
+              <div class="section-title" style="font-size:15px;margin-bottom:10px;">👥 Type d'appelants (Client vs Agent)</div>
+              <div class="section-hint" style="margin-bottom:14px;">Répartition entre Clients et Agents / Experts.</div>
+              <div style="position:relative;height:220px;width:100%;">
+                <canvas id="chart-caller-canvas"></canvas>
+              </div>
+            </div>
+
+            <!-- Chart 4: Daily Activity Trend Bar -->
+            <div class="card chart-card">
+              <div class="section-title" style="font-size:15px;margin-bottom:10px;">📅 Évolution quotidienne de l'activité</div>
+              <div class="section-hint" style="margin-bottom:14px;">Historique des codifications par jour.</div>
+              <div style="position:relative;height:220px;width:100%;">
+                <canvas id="chart-trend-canvas"></canvas>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card">
+            <div class="section-title" style="font-size:15px;">Rapport d'activité détaillé</div>
+            <div class="section-hint" id="report-period-hint">—</div>
+            <div id="report-content"></div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Registre des appels -->
+        <div id="tab-appels" class="admin-tab-pane">
+          <div class="card">
+            <div class="section-title" style="font-size:15px;margin-bottom:14px;">Registre des appels codifiés</div>
+            <div class="filters">
+              <select id="filter-motif"><option value="">Tous les motifs</option></select>
+              <select id="filter-agent"><option value="">Tous les comptes</option></select>
+              <select id="filter-caller">
+                <option value="">Client / Agent — tous</option>
+                <option value="client">Client</option>
+                <option value="agent">Agent</option>
+              </select>
+              <input id="filter-search" type="text" placeholder="Rechercher une référence...">
+              <button class="btn-outline" id="export-btn">Exporter CSV</button>
+              <button class="btn-outline" id="export-pdf-btn">Exporter PDF</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>N°</th><th>Référence</th><th>Motif</th><th>Qui</th><th>Chargé</th><th>Date</th><th>Heure</th><th>Commentaire</th><th>Note</th><th>Actions</th></tr></thead>
+                <tbody id="table-body"></tbody>
+              </table>
+            </div>
+            <div id="admin-empty" class="empty-state hidden">Aucun appel ne correspond à ces filtres.</div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Dossiers à risque -->
+        <div id="tab-risques" class="admin-tab-pane">
+          <div id="alert-section"></div>
+          <div class="card">
+            <div class="section-title" style="font-size:15px;">Dossiers à risque & Alertes réclamations</div>
+            <div class="section-hint">Références avec plusieurs réclamations sur les 30 derniers jours.</div>
+            <div id="risk-list"></div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Top chargés -->
+        <div id="tab-top" class="admin-tab-pane">
+          <div class="card leaderboard-card">
+            <div class="section-title" style="font-size:15px;">Top chargés & Performance</div>
+            <div class="section-hint" id="leaderboard-period-hint">Classement sur : aujourd'hui.</div>
+            <div class="leaderboard" id="leaderboard"></div>
+            <div class="agent-detail" id="agent-detail"></div>
+          </div>
+        </div>
+
+        <!-- Tab 5: Gestion des comptes -->
+        <div id="tab-comptes" class="admin-tab-pane">
+          <div class="card">
+            <div class="section-title">Gestion des comptes & Utilisateurs</div>
+            <div class="section-hint">Créez ou modifiez des comptes pour les chargés ou les administrateurs.</div>
+            <div class="account-form">
+              <input id="new-account-name" type="text" placeholder="Nom de l'utilisateur">
+              <input id="new-account-password" type="text" placeholder="Mot de passe">
+              <select id="new-account-role">
+                <option value="agent">Chargé</option>
+                <option value="admin">Administrateur</option>
+              </select>
+              <button class="btn-outline" id="add-account-btn">Ajouter</button>
+            </div>
+
+            <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line);">
+              <div style="font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Importer des comptes (CSV / Excel)</div>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <label id="import-label" style="padding:8px 14px;border:1px solid var(--line-strong);border-radius:var(--radius);cursor:pointer;font-size:12.5px;background:var(--panel-2);color:var(--text);transition:background .2s;">
+                  📂 Choisir un fichier (CSV / XLSX)
+                  <input type="file" id="import-file-input" accept=".csv,.xlsx,.xls" style="display:none;">
+                </label>
+                <select id="import-role-select" style="padding:8px 10px;border:1px solid var(--line-strong);border-radius:var(--radius);font-size:12.5px;background:var(--panel-2);color:var(--text);">
+                  <option value="agent">Chargé</option>
+                  <option value="admin">Administrateur</option>
+                </select>
+                <button id="import-btn" class="btn-gold" style="padding:8px 18px;font-size:12.5px;width:auto;" disabled>Importer</button>
+                <span id="import-status" style="font-size:12px;color:var(--text-muted);"></span>
+              </div>
+              <div id="import-preview" style="margin-top:8px;font-size:12px;color:var(--text-secondary);"></div>
+            </div>
+
+            <div class="account-list" id="account-list"></div>
+            <div id="db-status-admin" style="margin-top:15px; font-size:12px; display:flex; align-items:center; gap:6px;">
+              <div id="db-status-dot-admin" style="width:8px; height:8px; border-radius:50%; background:#EAB308;"></div>
+              <span id="db-status-text-admin" style="color:var(--text-muted); font-weight:600;">Chargement...</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+        <span id="db-status-text-admin" style="color:var(--text-muted); font-weight:600;">Chargement...</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modale changement de mot de passe (première connexion) -->
+  <div id="change-pw-modal" class="hidden" style="position:fixed;inset:0;z-index:100;background:rgba(16,24,40,.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);">
+    <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:36px 32px;max-width:400px;width:90%;box-shadow:var(--shadow-lg);">
+      <h3 style="font-family:var(--serif);font-size:20px;font-weight:normal;margin:0 0 8px;color:var(--paper);">Première connexion</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin:0 0 22px;">Votre mot de passe a été généré automatiquement. Veuillez le changer avant de continuer.</p>
+      <label class="field-label">Nouveau mot de passe</label>
+      <input id="change-pw-input" type="password" placeholder="Minimum 4 caractères" autocomplete="new-password" style="width:100%;padding:11px 13px;font-size:14px;border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--panel-2);color:var(--text);font-family:var(--sans);margin-bottom:8px;">
+      <label class="field-label" style="margin-top:4px;">Confirmer le mot de passe</label>
+      <input id="change-pw-confirm" type="password" placeholder="Répétez le mot de passe" autocomplete="new-password" style="width:100%;padding:11px 13px;font-size:14px;border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--panel-2);color:var(--text);font-family:var(--sans);margin-bottom:12px;">
+      <div id="change-pw-error" style="font-size:12.5px;color:var(--red);min-height:16px;margin-bottom:10px;"></div>
+      <button id="change-pw-btn" class="btn-gold">Enregistrer et continuer</button>
+    </div>
+  </div>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+/* =========================================================================
+   CONFIGURATION & INITIALISATION
+   ========================================================================= */
+
+// URL du serveur Backend (configurée dynamiquement ou relative /api)
+const BACKEND_URL = (typeof window !== 'undefined' && window.ENV_BACKEND_URL) || "";
+
+let apiOnline = false;
+
+function getApiUrl(path) {
+  if (BACKEND_URL) {
+    return BACKEND_URL.replace(/\/$/, '') + path;
+  }
+  return path;
+}
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("codif_token");
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
+async function authFetch(url, options = {}) {
+  options.headers = { ...getAuthHeaders(), ...options.headers };
+  try {
+    const res = await fetch(getApiUrl(url), options);
+    if (res.status === 401 || res.status === 403) {
+      // N'effectuer un logout automatique que si l'utilisateur est déjà confirmé connecté
+      // (évite le logout au chargement de la page si le token est expiré)
+      if (currentAgent && localStorage.getItem("codif_token")) {
+        logout();
+        alert("Votre session a expiré. Veuillez vous reconnecter.");
+      }
+    }
+    return res;
+  } catch (e) {
+    throw e;
+  }
+}
+
+async function updateDbStatusUI() {
+  const dot = document.getElementById("db-status-dot");
+  const text = document.getElementById("db-status-text");
+  const container = document.getElementById("db-status");
+  
+  const dotAdmin = document.getElementById("db-status-dot-admin");
+  const textAdmin = document.getElementById("db-status-text-admin");
+
+  if (dot) dot.classList.add("status-pulse");
+  if (dotAdmin) dotAdmin.classList.add("status-pulse");
+
+  const updateUI = (online, message, title) => {
+    apiOnline = online;
+    if (dot) dot.classList.remove("status-pulse");
+    if (dotAdmin) dotAdmin.classList.remove("status-pulse");
+    const color = online ? "#22C55E" : "#EAB308";
+    const textCol = online ? "#15803D" : "#854D0E";
+    
+    if (dot) dot.style.background = color;
+    if (text) { text.style.color = textCol; text.textContent = message; }
+    if (container) container.title = title;
+
+    if (dotAdmin) dotAdmin.style.background = color;
+    if (textAdmin) { textAdmin.style.color = textCol; textAdmin.textContent = message; }
+  };
+
+  try {
+    const res = await fetch(getApiUrl('/api/status'));
+    if (res.ok) {
+      updateUI(true, "API Connectée", "Connecté au serveur API");
+      return;
+    }
+  } catch (e) {}
+
+  updateUI(false, "Mode Local", "Backend API indisponible. Mode local (localStorage).");
+}
+
+/* =========================================================================
+   COUCHE DE STOCKAGE (API EXPRESS PROXY / LOCALSTORAGE FALLBACK)
+   ========================================================================= */
+const api = {
+  async getPublicUsers() {
+    try {
+      const res = await fetch(getApiUrl('/api/auth/users'));
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    // Fallback local
+    const agents = JSON.parse(localStorage.getItem("codif_agents") || "[]");
+    const admins = JSON.parse(localStorage.getItem("codif_admins") || "[]");
+    const list = agents.map(a => ({ name: a.name, role: 'agent' }));
+    admins.forEach(a => list.push({ name: a.name, role: 'admin' }));
+    if (!list.some(u => u.name.toLowerCase() === 'admin')) {
+      list.unshift({ name: "Admin", role: 'admin' });
+    }
+    return list;
+  },
+
+  async getEntries() {
+    try {
+      const res = await authFetch('/api/entries');
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    try { return JSON.parse(localStorage.getItem("codif_entries") || "[]"); } catch (e) { return []; }
+  },
+
+  async insertEntry(entry) {
+    try {
+      const res = await authFetch('/api/entries', {
+        method: 'POST',
+        body: JSON.stringify(entry)
+      });
+      if (res.ok) return true;
+    } catch (e) {}
+    try {
+      const entries = await this.getEntries();
+      entries.push(entry);
+      localStorage.setItem("codif_entries", JSON.stringify(entries));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  },
+
+  async updateEntry(entry) {
+    try {
+      const res = await authFetch('/api/entries/' + encodeURIComponent(entry.id), {
+        method: 'PUT',
+        body: JSON.stringify(entry)
+      });
+      if (res.ok) return true;
+    } catch (e) {}
+    try {
+      const entries = await this.getEntries();
+      const idx = entries.findIndex(e => e.id === entry.id);
+      if (idx !== -1) {
+        entries[idx] = { ...entries[idx], ...entry };
+        localStorage.setItem("codif_entries", JSON.stringify(entries));
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  },
+
+  async saveEntries(entries) {
+    try {
+      const res = await authFetch('/api/entries/batch', {
+        method: 'POST',
+        body: JSON.stringify({ entries })
+      });
+      if (res.ok) return true;
+    } catch (e) {}
+    try { localStorage.setItem("codif_entries", JSON.stringify(entries)); return true; } catch (e) { return false; }
+  },
+
+  async getAgents() {
+    try {
+      const res = await authFetch('/api/agents');
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    try { return JSON.parse(localStorage.getItem("codif_agents") || "[]"); } catch (e) { return []; }
+  },
+
+  async addAgent(name, password) {
+    try {
+      const res = await authFetch('/api/agents', {
+        method: 'POST',
+        body: JSON.stringify({ name, password })
+      });
+      return res.ok;
+    } catch (e) { return false; }
+  },
+
+  async deleteAgent(name) {
+    try {
+      const res = await authFetch('/api/agents/' + encodeURIComponent(name), { method: 'DELETE' });
+      return res.ok;
+    } catch (e) { return false; }
+  },
+
+  async updateAgent(name, newName, password) {
+    try {
+      const body = {};
+      if (newName && newName !== name) body.name = newName;
+      if (password) body.password = password;
+      const res = await authFetch('/api/agents/' + encodeURIComponent(name), {
+        method: 'PUT',
+        body: JSON.stringify(body)
+      });
+      return res.ok;
+    } catch (e) { return false; }
+  },
+
+  async getAdmins() {
+    try {
+      const res = await authFetch('/api/admins');
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    try { return JSON.parse(localStorage.getItem("codif_admins") || "[]"); } catch (e) { return []; }
+  },
+
+  async addAdmin(name, password) {
+    try {
+      const res = await authFetch('/api/admins', {
+        method: 'POST',
+        body: JSON.stringify({ name, password })
+      });
+      return res.ok;
+    } catch (e) { return false; }
+  },
+
+  async deleteAdmin(name) {
+    try {
+      const res = await authFetch('/api/admins/' + encodeURIComponent(name), { method: 'DELETE' });
+      return res.ok;
+    } catch (e) { return false; }
+  },
+
+  async updateAdmin(name, newName, password) {
+    try {
+      const body = {};
+      if (newName && newName !== name) body.name = newName;
+      if (password) body.password = password;
+      const res = await authFetch('/api/admins/' + encodeURIComponent(name), {
+        method: 'PUT',
+        body: JSON.stringify(body)
+      });
+      return res.ok;
+    } catch (e) { return false; }
+  },
+
+  async importUsers(names, role) {
+    try {
+      const res = await authFetch('/api/agents/import', {
+        method: 'POST',
+        body: JSON.stringify({ names, role })
+      });
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    return null;
+  },
+
+  async mustChangePassword() {
+    try {
+      const res = await authFetch('/api/user/must-change');
+      if (res.ok) { const d = await res.json(); return d.mustChange; }
+    } catch (e) {}
+    return false;
+  },
+
+  async changeOwnPassword(password) {
+    try {
+      const res = await authFetch('/api/user/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ password })
+      });
+      return res.ok;
+    } catch (e) { return false; }
+  },
+
+  async getCurrentAgent() { return localStorage.getItem("codif_current_agent"); },
+  async setCurrentAgent(name) { localStorage.setItem("codif_current_agent", name); },
+  async clearCurrentAgent() { localStorage.removeItem("codif_current_agent"); },
+
+  async getCurrentRole() { return localStorage.getItem("codif_role"); },
+  async setCurrentRole(role) { localStorage.setItem("codif_role", role); },
+  async clearCurrentRole() { localStorage.removeItem("codif_role"); },
+
+  async getThreshold() {
+    try {
+      const res = await authFetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.threshold) return data.threshold;
+      }
+    } catch (e) {}
+    const v = localStorage.getItem("codif_threshold");
+    return v ? parseInt(v) : 3;
+  },
+
+  async saveThreshold(v) {
+    try {
+      const res = await authFetch('/api/settings', {
+        method: 'POST',
+        body: JSON.stringify({ threshold: v })
+      });
+      if (res.ok) return true;
+    } catch (e) {}
+    try { localStorage.setItem("codif_threshold", String(v)); return true; } catch (e) { return false; }
+  },
+
+  async getNotes() {
+    try {
+      const res = await authFetch('/api/notes');
+      if (res.ok) return await res.json();
+    } catch (e) {}
+    try { return JSON.parse(localStorage.getItem("codif_notes") || '{"refs":{},"agents":{}}'); } catch (e) { return { refs: {}, agents: {} }; }
+  },
+
+  async saveNotes(notes) {
+    try {
+      const res = await authFetch('/api/notes', {
+        method: 'POST',
+        body: JSON.stringify(notes)
+      });
+      if (res.ok) return true;
+    } catch (e) {}
+    try { localStorage.setItem("codif_notes", JSON.stringify(notes)); return true; } catch (e) { return false; }
+  }
+};
+
+const MOTIFS = [
+  {id:"maladie_crc", label:"Dossier maladie / CRC", group:"declaration"},
+  {id:"assistance", label:"Dossier d'assistance", group:"declaration"},
+  {id:"demande_sans_suite", label:"Demande sans suite", group:"declaration"},
+  {id:"declaration_sinistre", label:"Déclaration de sinistre", group:"demande"},
+  {id:"info", label:"Demande d'information", group:"demande"},
+  {id:"changement_expert", label:"Demande de changement d'expert", group:"demande"},
+  {id:"pec", label:"Demande PEC", group:"demande"},
+  {id:"expert_mission", label:"Demande d'expert / mission d'expert", group:"demande"},
+  {id:"rattachement", label:"Demande de rattachement de dossier", group:"demande"},
+  {id:"wafa_cash", label:"Demande de mise à disposition", group:"demande"},
+  {id:"recl_reglement", label:"Réclamation de règlement", group:"reclamation"},
+  {id:"recl_pec", label:"Réclamation PEC", group:"reclamation"},
+  {id:"recl_instruction", label:"Réclamation de dossier en instruction", group:"reclamation"},
+  {id:"recl_reforme", label:"Réclamation suite à une réforme", group:"reclamation"},
+  {id:"recl_retard_expert", label:"Réclamation suite retard expert", group:"reclamation"},
+  {id:"recl_reglement_errone", label:"Réclamation règlement erroné", group:"reclamation"}
+];
+const OPTIONAL_REF_MOTIFS = ["maladie_crc", "assistance"];
+const OPTIONAL_CALLER_MOTIFS = ["maladie_crc", "assistance", "demande_sans_suite"];
+const COMMENT_REQUIRED_MOTIFS = ["demande_sans_suite"];
+let HOT_THRESHOLD = 3;
+const SHORTCUT_KEYS = ["Q","W","E","R","T","Y","U","I","O","P","A","S","D","F","G","H"];
+const MOTIF_KEYS = {};
+MOTIFS.forEach((m,i) => { MOTIF_KEYS[m.id] = SHORTCUT_KEYS[i] || null; });
+
+const GROUP_LABELS = {declaration:"Déclaration & suivi de dossier", demande:"Demandes", reclamation:"Réclamations"};
+
+const GROUP_QUOTES = {
+  declaration: [
+    "Chaque déclaration bien codifiée fait démarrer le dossier sans retard pour l'assuré.",
+    "Une codification claire ici, c'est un dossier qui part du bon pied."
+  ],
+  demande: [
+    "Bien tracée, cette demande aide à mieux anticiper la charge de traitement à venir.",
+    "Une info claire aujourd'hui, c'est souvent un appel de moins demain."
+  ],
+  reclamation: [
+    "Ce signalement compte : il aide à repérer plus vite les dossiers qui ont besoin d'attention.",
+    "Merci — chaque réclamation codifiée améliore le suivi global du service."
+  ]
+};
+function pickQuote(group){
+  const arr = GROUP_QUOTES[group] || GROUP_QUOTES.declaration;
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+let notesStore = {refs:{}, agents:{}};
+let allEntries = [];
+let agents = [];
+let adminUsers = [];
+let publicUsers = [];
+let currentAgent = null;
+let currentRole = null;
+let selectedMotif = null;
+let selectedCallerType = null;
+let sessionEntries = [];
+
+function motifById(id){ return MOTIFS.find(m => m.id === id); }
+function todayStr(d){ return (d || new Date()).toISOString().slice(0,10); }
+function escapeHtml(str){ const d = document.createElement("div"); d.textContent = str; return d.innerHTML; }
+function hashCode(s){ let h=0; for(let i=0;i<s.length;i++){ h=(h<<5)-h+s.charCodeAt(i); h|=0; } return h; }
+function ticketNo(id){ return "N°" + String(Math.abs(hashCode(id)) % 900000 + 100000); }
+function displayRef(ref){ return ref ? ref : "—"; }
+function callerLabel(type){ return type === "client" ? "Client" : type === "agent" ? "Agent" : ""; }
+function firstName(fullName){ return (fullName || "").trim().split(/\s+/)[0] || fullName; }
+function greetingWord(){
+  const h = new Date().getHours();
+  if(h < 12) return "Bonjour";
+  if(h < 18) return "Bon après-midi";
+  return "Bonsoir";
+}
+
+function debounce(fn, ms) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), ms);
+  };
+}
+
+function showToast(message, type = 'info') {
+  let container = document.getElementById("toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toast-container";
+    document.body.appendChild(container);
+  }
+  const icons = { success: '✔', error: '✖', warning: '⚠️', info: 'ℹ️' };
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<span>${icons[type] || ''}</span> <span>${escapeHtml(message)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add("toastOut");
+    setTimeout(() => toast.remove(), 280);
+  }, 3000);
+}
+
+function showLoading(text = "Chargement...") {
+  const el = document.getElementById("global-loader");
+  const txt = document.getElementById("loader-text");
+  if (txt) txt.textContent = text;
+  if (el) el.classList.remove("hidden");
+}
+
+function hideLoading() {
+  const el = document.getElementById("global-loader");
+  if (el) el.classList.add("hidden");
+}
+
+/* ---------- screen switching ---------- */
+const SCREENS = ["view-login","view-agent","view-admin"];
+function goTo(id){
+  SCREENS.forEach(s => document.getElementById(s).classList.add("hidden"));
+  const el = document.getElementById(id);
+  el.classList.remove("hidden");
+  el.classList.remove("screen");
+  void el.offsetWidth;
+  el.classList.add("screen");
+}
+
+/* ---------- populate user select ---------- */
+async function loadLoginUsersDropdown(){
+  const select = document.getElementById("login-user-select");
+  publicUsers = await api.getPublicUsers();
+  if (publicUsers.length === 0) {
+    select.innerHTML = '<option value="Admin">Admin</option>';
+    return;
+  }
+  select.innerHTML = publicUsers.map(u => `<option value="${escapeHtml(u.name)}">${escapeHtml(u.name)}</option>`).join("");
+}
+
+/* ---------- unified login ---------- */
+document.getElementById("login-form").addEventListener("submit", e => {
+  e.preventDefault();
+  tryUnifiedLogin();
+});
+document.getElementById("login-btn").addEventListener("click", tryUnifiedLogin);
+
+async function tryUnifiedLogin(){
+  const select = document.getElementById("login-user-select");
+  const name = select.value.trim();
+  const password = document.getElementById("login-password").value;
+  const errorEl = document.getElementById("login-error");
+  const loginBtn = document.getElementById("login-btn");
+  errorEl.classList.remove("show");
+
+  if (!name || !password) {
+    errorEl.textContent = "Veuillez sélectionner un nom et entrer un mot de passe.";
+    errorEl.classList.add("show");
+    return;
+  }
+
+  loginBtn.disabled = true;
+  loginBtn.innerHTML = '<span class="spinner-sm"></span> Connexion...';
+  showLoading("Connexion en cours...");
+
+  try {
+    const res = await fetch(getApiUrl('/api/auth/login'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, password })
+    });
+
+    if (res.status === 401) {
+      hideLoading();
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Se connecter';
+      errorEl.textContent = "Mot de passe incorrect.";
+      errorEl.classList.add("show");
+      return;
+    }
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
+        localStorage.setItem("codif_token", data.token);
+        currentAgent = data.name;
+        currentRole = data.role;
+        await api.setCurrentAgent(data.name);
+        await api.setCurrentRole(data.role);
+
+        // Vérifier si l'utilisateur doit changer son mot de passe (première connexion)
+        const mustChange = await api.mustChangePassword();
+        hideLoading();
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Se connecter';
+        if (mustChange) {
+          showFirstLoginModal();
+          return;
+        }
+
+        if (data.role === 'admin') {
+          return await enterAdminView();
+        } else {
+          return await enterAgentView();
+        }
+      }
+    }
+  } catch (e) {}
+
+  hideLoading();
+  loginBtn.disabled = false;
+  loginBtn.textContent = 'Se connecter';
+
+  // Fallback local
+  const accAdmin = adminUsers.find(a => a.name === name);
+  if (accAdmin && (password === accAdmin.password || accAdmin.password === "********")) {
+    localStorage.setItem("codif_token", "local-session-admin-" + name);
+    currentAgent = name;
+    currentRole = "admin";
+    await api.setCurrentAgent(name);
+    await api.setCurrentRole("admin");
+    return await enterAdminView();
+  }
+
+  const accAgent = agents.find(a => a.name === name);
+  if (accAgent && (password === accAgent.password || accAgent.password === "********")) {
+    localStorage.setItem("codif_token", "local-session-agent-" + name);
+    currentAgent = name;
+    currentRole = "agent";
+    await api.setCurrentAgent(name);
+    await api.setCurrentRole("agent");
+    return await enterAgentView();
+  }
+
+  errorEl.textContent = "Mot de passe incorrect.";
+  errorEl.classList.add("show");
+}
+
+function logout(){
+  currentAgent = null;
+  currentRole = null;
+  api.clearCurrentAgent();
+  api.clearCurrentRole();
+  localStorage.removeItem("codif_token");
+  renderUserDropdown(null, null);
+  document.getElementById("login-password").value = "";
+  document.getElementById("login-error").classList.remove("show");
+  loadLoginUsersDropdown();
+  goTo("view-login");
+}
+
+function renderUserDropdown(name, role) {
+  const container = document.getElementById("user-menu-box");
+  if (!container) return;
+  if (!name) {
+    container.classList.add("hidden");
+    return;
+  }
+  container.classList.remove("hidden");
+  const initial = name.trim().charAt(0).toUpperCase() || "U";
+  document.getElementById("user-avatar-initial").textContent = initial;
+  document.getElementById("user-avatar-large").textContent = initial;
+  document.getElementById("user-pill-name").textContent = name;
+  document.getElementById("user-dropdown-fullname").textContent = name;
+  
+  const roleBadge = document.getElementById("user-pill-role");
+  if (role === 'admin') {
+    roleBadge.textContent = "Admin";
+    roleBadge.className = "role-badge admin";
+    document.getElementById("user-dropdown-sub").textContent = "Administrateur connecté";
+  } else {
+    roleBadge.textContent = "Chargé";
+    roleBadge.className = "role-badge agent";
+    document.getElementById("user-dropdown-sub").textContent = "Chargé d'appel connecté";
+  }
+}
+
+function setupUserDropdownEvents() {
+  const trigger = document.getElementById("user-pill-trigger");
+  const content = document.getElementById("user-dropdown-content");
+  const container = document.getElementById("user-menu-box");
+  const logoutBtn = document.getElementById("logout-dropdown-btn");
+
+  if (trigger && content) {
+    trigger.onclick = (e) => {
+      e.stopPropagation();
+      const isOpen = !content.classList.contains("hidden");
+      if (isOpen) {
+        content.classList.add("hidden");
+        container.classList.remove("open");
+      } else {
+        content.classList.remove("hidden");
+        container.classList.add("open");
+      }
+    };
+  }
+
+  if (logoutBtn) {
+    logoutBtn.onclick = (e) => {
+      e.stopPropagation();
+      if (content) content.classList.add("hidden");
+      if (container) container.classList.remove("open");
+      logout();
+    };
+  }
+
+  document.addEventListener("click", (e) => {
+    if (container && !container.contains(e.target)) {
+      if (content) content.classList.add("hidden");
+      container.classList.remove("open");
+    }
+  });
+}
+
+/* ---------- First-login password change modal ---------- */
+function showFirstLoginModal() {
+  const modal = document.getElementById("change-pw-modal");
+  modal.classList.remove("hidden");
+  modal.style.display = "flex";
+  document.getElementById("change-pw-input").value = "";
+  document.getElementById("change-pw-confirm").value = "";
+  document.getElementById("change-pw-error").textContent = "";
+  document.getElementById("change-pw-input").focus();
+}
+
+document.getElementById("change-pw-btn").addEventListener("click", async () => {
+  const pw1 = document.getElementById("change-pw-input").value;
+  const pw2 = document.getElementById("change-pw-confirm").value;
+  const errEl = document.getElementById("change-pw-error");
+  errEl.textContent = "";
+
+  if (pw1.length < 4) { errEl.textContent = "Le mot de passe doit comporter au moins 4 caractères."; return; }
+  if (pw1 !== pw2) { errEl.textContent = "Les mots de passe ne correspondent pas."; return; }
+
+  const btn = document.getElementById("change-pw-btn");
+  btn.disabled = true;
+  btn.textContent = "Enregistrement...";
+
+  const ok = await api.changeOwnPassword(pw1);
+  btn.disabled = false;
+  btn.textContent = "Enregistrer et continuer";
+
+  if (ok) {
+    document.getElementById("change-pw-modal").style.display = "none";
+    document.getElementById("change-pw-modal").classList.add("hidden");
+    if (currentRole === 'admin') {
+      await enterAdminView();
+    } else {
+      await enterAgentView();
+    }
+  } else {
+    errEl.textContent = "Erreur lors de la mise à jour. Réessayez.";
+  }
+});
+
+/* ---------- Admin: import CSV / Excel ---------- */
+function setupImportUI() {
+  const fileInput = document.getElementById("import-file-input");
+  const importBtn = document.getElementById("import-btn");
+  const importStatus = document.getElementById("import-status");
+  const importPreview = document.getElementById("import-preview");
+
+  if (!fileInput) return; // pas encore dans le DOM
+
+  let parsedNames = [];
+
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    importStatus.textContent = "";
+    importPreview.textContent = "";
+    importBtn.disabled = true;
+    parsedNames = [];
+
+    try {
+      const ext = file.name.split(".").pop().toLowerCase();
+      if (ext === "csv") {
+        const text = await file.text();
+        parsedNames = text.split(/[\r\n]+/)
+          .map(l => l.split(",")[0].replace(/^"|"$/g, "").trim())
+          .filter(Boolean);
+      } else if (ext === "xlsx" || ext === "xls") {
+        const buffer = await file.arrayBuffer();
+        const wb = XLSX.read(buffer, { type: "array" });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+        parsedNames = rows.map(r => String(r[0] || "").trim()).filter(Boolean);
+        // Sauter l'en-tête si c'est une chaîne non-numérique évidente
+        if (parsedNames.length > 0 && /^(nom|name|prenom|login|user)/i.test(parsedNames[0])) {
+          parsedNames.shift();
+        }
+      } else {
+        importStatus.textContent = "⚠️ Format non supporté.";
+        return;
+      }
+
+      if (parsedNames.length === 0) {
+        importStatus.textContent = "⚠️ Aucun nom trouvé dans le fichier.";
+        return;
+      }
+
+      importPreview.innerHTML = `<b>${parsedNames.length} utilisateur(s) détecté(s) :</b> ${parsedNames.slice(0, 8).map(n => `<span style="background:var(--panel-2);padding:1px 6px;border-radius:4px;margin:0 2px;">${escapeHtml(n)}</span>`).join("")}${parsedNames.length > 8 ? ` <span style="color:var(--text-muted);">+${parsedNames.length - 8} autres</span>` : ""}`;
+      importBtn.disabled = false;
+      document.getElementById("import-label").textContent = `📄 ${file.name}`;
+    } catch (err) {
+      importStatus.textContent = "⚠️ Erreur de lecture : " + err.message;
+    }
+  });
+
+  importBtn.addEventListener("click", async () => {
+    if (!parsedNames.length) return;
+    const role = document.getElementById("import-role-select").value;
+    importBtn.disabled = true;
+    importBtn.textContent = "Importation...";
+    importStatus.textContent = "";
+
+    const result = await api.importUsers(parsedNames, role);
+
+    importBtn.textContent = "Importer";
+    if (!result || !result.created) {
+      importBtn.disabled = false;
+      importStatus.innerHTML = `<span style="color:var(--red);">Erreur lors de l'importation.</span>`;
+      return;
+    }
+
+    importStatus.innerHTML = `<span style="color:#4ade80;">✔ ${result.created.length} compte(s) créé(s) !</span>`;
+
+    // Recharger la liste des comptes
+    agents = await api.getAgents();
+    adminUsers = await api.getAdmins();
+    renderAccountList();
+    populateFilterOptions();
+    loadLoginUsersDropdown();
+
+    // Télécharger un CSV avec les identifiants générés
+    if (result.created.length > 0) {
+      const csvContent = "Nom,Mot de passe,Rôle\n" +
+        result.created.map(u => `${u.name},${u.password},${u.role}`).join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `identifiants-importes-${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    fileInput.value = "";
+    parsedNames = [];
+    importPreview.textContent = "";
+    document.getElementById("import-label").innerHTML = `📂 Choisir un fichier (CSV / XLSX)<input type="file" id="import-file-input" accept=".csv,.xlsx,.xls" style="display:none;">`;
+    // Re-attacher l'event
+    document.getElementById("import-file-input").addEventListener("change", fileInput.onchange);
+  });
+}
+
+/* ---------- agent (codification) view ---------- */
+function renderMotifButtons(){
+  ["declaration","demande","reclamation"].forEach(group => {
+    const container = document.querySelector(`.motif-grid[data-group="${group}"]`);
+    container.innerHTML = "";
+    MOTIFS.filter(m => m.group === group).forEach(m => {
+      const btn = document.createElement("button");
+      btn.className = "motif-btn";
+      btn.textContent = m.label;
+      btn.dataset.id = m.id;
+      const key = MOTIF_KEYS[m.id];
+      if(key){
+        const badge = document.createElement("span");
+        badge.className = "motif-key";
+        badge.textContent = key;
+        btn.appendChild(badge);
+      }
+      btn.addEventListener("click", () => selectMotif(m.id));
+      container.appendChild(btn);
+    });
+  });
+}
+document.addEventListener("keydown", e => {
+  if(e.ctrlKey || e.metaKey || e.altKey) return;
+  const agentView = document.getElementById("view-agent");
+  if(agentView.classList.contains("hidden")) return;
+
+  const codifSuccess = document.getElementById("codif-success");
+  if (!codifSuccess.classList.contains("hidden") && e.key === "Enter") {
+    resetCodifForm();
+    return;
+  }
+
+  const codifForm = document.getElementById("codif-form");
+  if(codifForm.classList.contains("hidden")) return;
+  if(document.activeElement && (document.activeElement.tagName === "TEXTAREA" || document.activeElement.tagName === "INPUT")) return;
+  const key = e.key.toUpperCase();
+  const motif = MOTIFS.find(m => MOTIF_KEYS[m.id] === key);
+  if(motif) selectMotif(motif.id);
+});
+function selectMotif(id){
+  selectedMotif = id;
+  document.querySelectorAll(".motif-btn").forEach(b => b.classList.toggle("selected", b.dataset.id === id));
+  updateSubmitState();
+}
+function selectCallerType(type){
+  selectedCallerType = type;
+  document.querySelectorAll(".caller-btn").forEach(b => b.classList.toggle("selected", b.dataset.type === type));
+  updateSubmitState();
+}
+function updateRefRequirementUI(optional){
+  const tag = document.getElementById("ref-required-tag");
+  const input = document.getElementById("ref-input");
+  if(optional){
+    tag.textContent = "Facultative pour ce motif";
+    tag.classList.add("optional");
+    input.placeholder = "Ex : 08202601234 (laisser vide si non applicable)";
+  }else{
+    tag.textContent = "Obligatoire";
+    tag.classList.remove("optional");
+    input.placeholder = "Ex : 08202601234";
+  }
+}
+function updateCallerRequirementUI(optional){
+  const tag = document.getElementById("caller-required-tag");
+  if(optional){
+    tag.textContent = "Facultative pour ce motif";
+    tag.classList.add("optional");
+  }else{
+    tag.textContent = "Obligatoire";
+    tag.classList.remove("optional");
+  }
+}
+const CODE_USAGE_LABELS = {
+  "08": "Personne (Particulier)",
+  "09": "Commercial (Utilitaire)",
+  "10": "Moto",
+  "12": "Flotte"
+};
+
+function validateSinistreRef(refStr) {
+  if (!refStr) return { valid: false, reason: "vide" };
+  
+  const cleaned = refStr.replace(/\D/g, "");
+  const currentYear = new Date().getFullYear();
+
+  if (cleaned.length < 2) {
+    return { valid: false, reason: "Code usage incomplet (doit commencer par 08, 09, 10 ou 12)" };
+  }
+
+  const code = cleaned.slice(0, 2);
+  if (!["08", "09", "10", "12"].includes(code)) {
+    return { valid: false, reason: `Code usage "${code}" invalide. Doit être 08 (Personne), 09 (Commercial), 10 (Moto) ou 12 (Flotte)` };
+  }
+
+  if (cleaned.length < 6) {
+    return { valid: false, reason: `Année incomplète (ex : ${code}${currentYear}...)` };
+  }
+
+  const yearStr = cleaned.slice(2, 6);
+  const yearNum = parseInt(yearStr, 10);
+
+  if (isNaN(yearNum) || yearNum < 1950 || yearNum > currentYear) {
+    return { valid: false, reason: `Année "${yearStr}" invalide. Doit être entre 1950 et ${currentYear}` };
+  }
+
+  if (cleaned.length >= 7 && cleaned[6] !== '0') {
+    return { valid: false, reason: `Un 0 séparateur doit obligatoirement suivre l'année (ex: ${code}${yearStr}0...)` };
+  }
+
+  const chrono = cleaned.slice(7);
+  if (chrono.length < 4) {
+    return { valid: false, reason: `N° chronologique trop court (${chrono.length}/4 chiffres minimum)` };
+  }
+
+  if (chrono.length > 7) {
+    return { valid: false, reason: `N° chronologique trop long (${chrono.length}/7 chiffres maximum)` };
+  }
+
+  return {
+    valid: true,
+    codeUsage: code,
+    usageLabel: CODE_USAGE_LABELS[code] || "Valide",
+    year: yearNum,
+    chrono: chrono,
+    formatted: `${code} · ${yearStr} · 0 · ${chrono}`
+  };
+}
+
+function syncRefInputs() {
+  const mainInput = document.getElementById("ref-input");
+  const segUsage = document.getElementById("ref-seg-usage");
+  const segYear = document.getElementById("ref-seg-year");
+  const segChrono = document.getElementById("ref-seg-chrono");
+  const badge = document.getElementById("ref-validation-badge");
+
+  if (!mainInput || !badge) return;
+
+  let val = mainInput.value.replace(/\D/g, "");
+
+  // Auto-insert '0' separator if user typed 7 digits and digit 7 is not '0'
+  if (val.length === 7 && val[6] !== '0') {
+    val = val.slice(0, 6) + '0' + val[6];
+    mainInput.value = val;
+  } else if (val.length > 7 && val[6] !== '0') {
+    val = val.slice(0, 6) + '0' + val.slice(6);
+    mainInput.value = val.slice(0, 14);
+  }
+
+  if (document.activeElement === mainInput) {
+    if (val.length >= 2 && ["08","09","10","12"].includes(val.slice(0,2))) {
+      if (segUsage) segUsage.value = val.slice(0,2);
+    } else {
+      if (segUsage) segUsage.value = "";
+    }
+    if (val.length >= 6) {
+      if (segYear) segYear.value = val.slice(2,6);
+    }
+    if (val.length >= 7) {
+      if (segChrono) segChrono.value = val.slice(7);
+    } else {
+      if (segChrono) segChrono.value = "";
+    }
+  }
+
+  if (!val) {
+    badge.style.display = "none";
+    badge.className = "ref-validation-badge";
+    return;
+  }
+
+  const res = validateSinistreRef(val);
+  badge.style.display = "block";
+
+  if (res.valid) {
+    badge.className = "ref-validation-badge valid";
+    badge.innerHTML = `✔ Référence conforme — <b>Usage:</b> ${res.codeUsage} (${res.usageLabel}) | <b>Année:</b> ${res.year} | <b>Séparateur:</b> 0 | <b>N° Chrono:</b> ${res.chrono}`;
+  } else if (res.reason === "vide") {
+    badge.style.display = "none";
+  } else {
+    badge.className = "ref-validation-badge invalid";
+    badge.innerHTML = `⚠️ ${res.reason}`;
+  }
+}
+
+function updateRefFromSegments() {
+  const segUsage = document.getElementById("ref-seg-usage")?.value || "";
+  const segYear = document.getElementById("ref-seg-year")?.value || "";
+  const segChrono = (document.getElementById("ref-seg-chrono")?.value || "").replace(/\D/g,"");
+  const mainInput = document.getElementById("ref-input");
+
+  if (mainInput) {
+    const sep = (segUsage && segYear) ? "0" : "";
+    mainInput.value = (segUsage + segYear + sep + segChrono).slice(0, 14);
+    updateSubmitState();
+  }
+}
+
+function updateSubmitState(){
+  const input = document.getElementById("ref-input");
+  const cleaned = input.value.replace(/\D/g,"");
+  if(cleaned !== input.value) input.value = cleaned;
+  const ref = input.value.trim();
+  const refOptional = !!(selectedMotif && OPTIONAL_REF_MOTIFS.includes(selectedMotif));
+  updateRefRequirementUI(refOptional);
+
+  syncRefInputs();
+
+  const refValid = validateSinistreRef(ref).valid;
+  const okRef = refOptional ? true : refValid;
+
+  const callerOptional = !!(selectedMotif && OPTIONAL_CALLER_MOTIFS.includes(selectedMotif));
+  updateCallerRequirementUI(callerOptional);
+  const commentRequired = !!(selectedMotif && COMMENT_REQUIRED_MOTIFS.includes(selectedMotif));
+  const commentBlock = document.getElementById("comment-block");
+  commentBlock.classList.toggle("hidden", !commentRequired);
+  const commentVal = document.getElementById("comment-input").value.trim();
+  const okCaller = !!(selectedCallerType || callerOptional);
+  const okComment = !commentRequired || !!commentVal;
+  document.getElementById("submit-btn").disabled = !(okRef && okCaller && okComment && selectedMotif);
+  checkRefWarning(ref);
+}
+function checkRefWarning(ref){
+  const banner = document.getElementById("warn-banner");
+  const memory = document.getElementById("ref-memory");
+  if(!ref){ banner.classList.remove("show"); memory.classList.remove("show"); memory.innerHTML=""; return; }
+  const t = todayStr();
+  const matches = allEntries.filter(e => e.ref && e.ref.toLowerCase() === ref.toLowerCase() && e.date === t);
+  if(matches.length >= HOT_THRESHOLD){
+    banner.textContent = `Attention : cette référence a déjà été codifiée ${matches.length} fois aujourd'hui.`;
+    banner.classList.add("show");
+  }else{
+    banner.classList.remove("show");
+  }
+  if(matches.length > 0){
+    memory.innerHTML = `<div class="rm-title">Déjà codifiée aujourd'hui</div>` + matches.slice().reverse().map(e => {
+      const m = motifById(e.motifId);
+      return `<div class="rm-row"><span>${e.time}</span><span>${escapeHtml(m ? m.label : e.motifId)}</span></div>`;
+    }).join("");
+    memory.classList.add("show");
+  }else{
+    memory.innerHTML = "";
+    memory.classList.remove("show");
+  }
+}
+function renderMyStats(){
+  const t = todayStr();
+  const now = new Date();
+  const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+  const todayEntries = allEntries.filter(e => e.agent === currentAgent && e.date === t);
+  const weekEntries = allEntries.filter(e => e.agent === currentAgent && e.ts >= weekAgo.toISOString());
+  const todayEl = document.getElementById("my-today");
+  const weekEl = document.getElementById("my-week");
+  if(todayEl) todayEl.textContent = todayEntries.length;
+  if(weekEl) weekEl.textContent = weekEntries.length;
+  const counts = {};
+  weekEntries.forEach(e => { counts[e.motifId] = (counts[e.motifId] || 0) + 1; });
+  let top = "—", topCount = 0;
+  Object.entries(counts).forEach(([id,c]) => { if(c > topCount){ topCount = c; top = id; } });
+  const obj = motifById(top);
+  const topEl = document.getElementById("my-top-motif");
+  if(topEl) topEl.textContent = obj ? obj.label : "—";
+}
+function renderSessionChip(){
+  const t = todayStr();
+  const count = allEntries.filter(e => e.agent === currentAgent && e.date === t).length;
+  const el = document.getElementById("session-count");
+  if(el) el.textContent = count;
+}
+function renderRecent(){
+  const container = document.getElementById("recent-container");
+  if(sessionEntries.length === 0){
+    container.innerHTML = '<p class="empty-state">Aucun appel codifié pour le moment.</p>';
+    return;
+  }
+  container.innerHTML = "";
+  sessionEntries.slice().reverse().slice(0,8).forEach(e => {
+    const row = document.createElement("div");
+    row.className = "recent-row";
+    const motif = motifById(e.motifId);
+    row.innerHTML = `<span><span class="ticket">${ticketNo(e.id)}</span><span class="ref">${escapeHtml(displayRef(e.ref))}</span> — ${escapeHtml(motif ? motif.label : e.motifId)}</span><span class="time">${e.time}</span>`;
+    container.appendChild(row);
+  });
+}
+async function submitEntry(){
+  const refInput = document.getElementById("ref-input");
+  const ref = refInput.value.trim();
+  const refOptional = !!(selectedMotif && OPTIONAL_REF_MOTIFS.includes(selectedMotif));
+  const callerOptional = !!(selectedMotif && OPTIONAL_CALLER_MOTIFS.includes(selectedMotif));
+  const commentRequired = !!(selectedMotif && COMMENT_REQUIRED_MOTIFS.includes(selectedMotif));
+  const commentInput = document.getElementById("comment-input");
+  const commentVal = commentInput.value.trim();
+  if((!ref && !refOptional) || !selectedMotif) return;
+  if(!selectedCallerType && !callerOptional) return;
+  if(commentRequired && !commentVal) return;
+  const now = new Date();
+  const entry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    ref: ref, motifId: selectedMotif, callerType: selectedCallerType || null, comment: commentVal || null, agent: currentAgent,
+    date: todayStr(now), time: now.toTimeString().slice(0,5), ts: now.toISOString()
+  };
+  const submitBtn = document.getElementById("submit-btn");
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<span class="spinner-sm"></span> Enregistrement...';
+  showLoading("Codification de l'appel...");
+  allEntries.push(entry);
+  const ok = await api.insertEntry(entry);
+  hideLoading();
+  submitBtn.textContent = "Codifier l'appel";
+  if(ok){
+    sessionEntries.push(entry);
+    renderRecent();
+    renderSessionChip();
+    renderMyStats();
+    const motifObj = motifById(entry.motifId);
+    document.getElementById("success-ticket").textContent = ticketNo(entry.id);
+    document.getElementById("success-ref").textContent = displayRef(entry.ref);
+    document.getElementById("success-quote").textContent = pickQuote(motifObj ? motifObj.group : "declaration");
+    document.getElementById("codif-form").classList.add("hidden");
+    document.getElementById("codif-success").classList.remove("hidden");
+    refInput.value = "";
+    selectedMotif = null;
+    selectedCallerType = null;
+    document.querySelectorAll(".motif-btn").forEach(b => b.classList.remove("selected"));
+    document.querySelectorAll(".caller-btn").forEach(b => b.classList.remove("selected"));
+    commentInput.value = "";
+    document.getElementById("comment-block").classList.add("hidden");
+    document.getElementById("warn-banner").classList.remove("show");
+    document.getElementById("ref-memory").classList.remove("show");
+  }else{
+    allEntries.pop();
+    alert("Échec de l'enregistrement. Merci de réessayer.");
+  }
+  updateSubmitState();
+}
+function resetCodifForm(){
+  document.getElementById("codif-success").classList.add("hidden");
+  document.getElementById("codif-form").classList.remove("hidden");
+  const refInput = document.getElementById("ref-input");
+  refInput.value = "";
+  refInput.focus();
+  updateSubmitState();
+}
+
+/* ---------- Agent Tabs & History Editing ---------- */
+function switchAgentTab(tab) {
+  const tabCodifBtn = document.getElementById("agent-tab-btn-codif");
+  const tabHistBtn = document.getElementById("agent-tab-btn-history");
+  const paneCodif = document.getElementById("agent-pane-codif");
+  const paneHist = document.getElementById("agent-pane-history");
+
+  if (tab === 'history') {
+    if (tabCodifBtn) tabCodifBtn.classList.remove("active");
+    if (tabHistBtn) tabHistBtn.classList.add("active");
+    if (paneCodif) paneCodif.classList.add("hidden");
+    if (paneHist) paneHist.classList.remove("hidden");
+    renderAgentHistory();
+  } else {
+    if (tabHistBtn) tabHistBtn.classList.remove("active");
+    if (tabCodifBtn) tabCodifBtn.classList.add("active");
+    if (paneHist) paneHist.classList.add("hidden");
+    if (paneCodif) paneCodif.classList.remove("hidden");
+    setTimeout(() => document.getElementById("ref-input")?.focus(), 50);
+  }
+}
+
+function renderAgentHistory() {
+  const tbody = document.getElementById("agent-history-tbody");
+  const emptyState = document.getElementById("agent-history-empty");
+  const periodSel = document.getElementById("agent-history-period");
+  const searchInput = document.getElementById("agent-history-search");
+  const badgeNum = document.getElementById("agent-history-badge");
+
+  if (!tbody) return;
+
+  const myEntries = allEntries.filter(e => e.agent === currentAgent);
+  if (badgeNum) badgeNum.textContent = myEntries.length;
+
+  const period = periodSel ? periodSel.value : 'today';
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  const now = new Date();
+
+  let cutoff = null;
+  if (period === "today") cutoff = todayStr(now);
+  if (period === "week") { const d = new Date(now); d.setDate(d.getDate() - 7); cutoff = d.toISOString(); }
+  if (period === "month") { const d = new Date(now); d.setDate(d.getDate() - 30); cutoff = d.toISOString(); }
+
+  const filtered = myEntries.filter(e => {
+    if (period === "today" && e.date !== cutoff) return false;
+    if ((period === "week" || period === "month") && e.ts < cutoff) return false;
+    if (query) {
+      const ticketStr = ticketNo(e.id).toLowerCase();
+      const refStr = (e.ref || '').toLowerCase();
+      if (!ticketStr.includes(query) && !refStr.includes(query)) return false;
+    }
+    return true;
+  }).sort((a,b) => b.ts.localeCompare(a.ts));
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = "";
+    if (emptyState) emptyState.classList.remove("hidden");
+    return;
+  }
+
+  if (emptyState) emptyState.classList.add("hidden");
+
+  tbody.innerHTML = filtered.map(e => {
+    const m = motifById(e.motifId);
+    return `<tr>
+      <td class="ticket-no">${ticketNo(e.id)}</td>
+      <td class="ref-cell ${!e.ref ? 'ref-none' : ''}">${escapeHtml(displayRef(e.ref))}</td>
+      <td><span class="badge badge-${m ? m.group : ''}">${m ? escapeHtml(m.label) : escapeHtml(e.motifId)}</span></td>
+      <td>${e.callerType ? `<span class="badge-caller ${e.callerType}">${callerLabel(e.callerType)}</span>` : '<span class="ref-none">—</span>'}</td>
+      <td>${e.date}</td>
+      <td>${e.time}</td>
+      <td class="comment-cell">${e.comment ? escapeHtml(e.comment) : '<span class="ref-none">—</span>'}</td>
+      <td style="text-align:right;">
+        <button type="button" class="btn-outline edit-agent-entry-btn" data-id="${e.id}" style="padding:4px 10px;font-size:11.5px;font-weight:700;">✏️ Modifier</button>
+      </td>
+    </tr>`;
+  }).join("");
+
+  tbody.querySelectorAll(".edit-agent-entry-btn").forEach(btn => {
+    btn.onclick = () => openAgentEditModal(btn.dataset.id);
+  });
+}
+
+function openAgentEditModal(id) {
+  const entry = allEntries.find(e => e.id === id);
+  if (!entry) return;
+
+  document.getElementById("edit-entry-id").value = entry.id;
+  document.getElementById("edit-entry-ref").value = entry.ref || "";
+  document.getElementById("edit-entry-caller").value = entry.callerType || "client";
+  document.getElementById("edit-entry-comment").value = entry.comment || "";
+
+  const motifSelect = document.getElementById("edit-entry-motif");
+  motifSelect.innerHTML = MOTIFS.map(m =>
+    `<option value="${m.id}" ${m.id === entry.motifId ? 'selected' : ''}>${escapeHtml(m.label)} (${GROUP_LABELS[m.group] || m.group})</option>`
+  ).join("");
+
+  const modal = document.getElementById("agent-edit-modal");
+  modal.classList.remove("hidden");
+}
+
+function closeAgentEditModal() {
+  const modal = document.getElementById("agent-edit-modal");
+  if (modal) modal.classList.add("hidden");
+}
+
+async function saveAgentEdit() {
+  const id = document.getElementById("edit-entry-id").value;
+  const entry = allEntries.find(e => e.id === id);
+  if (!entry) return;
+
+  const newRef = document.getElementById("edit-entry-ref").value.trim().replace(/\D/g,"");
+  const newCaller = document.getElementById("edit-entry-caller").value;
+  const newMotif = document.getElementById("edit-entry-motif").value;
+  const newComment = document.getElementById("edit-entry-comment").value.trim();
+
+  const refOptional = OPTIONAL_REF_MOTIFS.includes(newMotif);
+  if (newRef && !refOptional) {
+    const vRes = validateSinistreRef(newRef);
+    if (!vRes.valid) {
+      showToast(`Référence invalide : ${vRes.reason}`, "error");
+      return;
+    }
+  }
+
+  const updated = {
+    ...entry,
+    ref: newRef,
+    callerType: newCaller,
+    motifId: newMotif,
+    comment: newComment || null
+  };
+
+  const saveBtn = document.getElementById("save-agent-edit-btn");
+  saveBtn.disabled = true;
+  saveBtn.textContent = "Enregistrement...";
+
+  const ok = await api.updateEntry(updated);
+
+  saveBtn.disabled = false;
+  saveBtn.textContent = "Enregistrer la modification";
+
+  if (ok) {
+    const idx = allEntries.findIndex(e => e.id === id);
+    if (idx !== -1) allEntries[idx] = updated;
+
+    closeAgentEditModal();
+    renderAgentHistory();
+    renderMyStats();
+    showToast("Codification modifiée avec succès !", "success");
+  } else {
+    showToast("Échec de la modification. Veuillez réessayer.", "error");
+  }
+}
+
+function setupAgentHistoryEvents() {
+  const tabCodifBtn = document.getElementById("agent-tab-btn-codif");
+  const tabHistBtn = document.getElementById("agent-tab-btn-history");
+  if (tabCodifBtn) tabCodifBtn.onclick = () => switchAgentTab('codif');
+  if (tabHistBtn) tabHistBtn.onclick = () => switchAgentTab('history');
+
+  const periodSel = document.getElementById("agent-history-period");
+  const searchInput = document.getElementById("agent-history-search");
+  if (periodSel) periodSel.onchange = () => renderAgentHistory();
+  if (searchInput) searchInput.oninput = debounce(renderAgentHistory, 150);
+
+  const closeBtn = document.getElementById("close-agent-edit-modal");
+  const cancelBtn = document.getElementById("cancel-agent-edit-btn");
+  if (closeBtn) closeBtn.onclick = closeAgentEditModal;
+  if (cancelBtn) cancelBtn.onclick = closeAgentEditModal;
+
+  const editForm = document.getElementById("agent-edit-form");
+  if (editForm) {
+    editForm.onsubmit = (e) => {
+      e.preventDefault();
+      saveAgentEdit();
+    };
+  }
+}
+
+async function enterAgentView(){
+  // Sécurité : un admin ne peut pas accéder à la page de saisie
+  if (currentRole === 'admin') {
+    return await enterAdminView();
+  }
+  allEntries = await api.getEntries();
+  goTo("view-agent");
+  switchAgentTab('codif');
+  renderUserDropdown(currentAgent, currentRole);
+  document.getElementById("wb-eyebrow").textContent = greetingWord();
+  document.getElementById("wb-name").textContent = firstName(currentAgent);
+  document.getElementById("codif-success").classList.add("hidden");
+  document.getElementById("codif-form").classList.remove("hidden");
+  renderSessionChip();
+  renderMyStats();
+  const myEntriesCount = allEntries.filter(e => e.agent === currentAgent).length;
+  const badgeNum = document.getElementById("agent-history-badge");
+  if (badgeNum) badgeNum.textContent = myEntriesCount;
+  updateSubmitState();
+  setTimeout(() => document.getElementById("ref-input").focus(), 50);
+}
+
+/* ---------- admin ---------- */
+function populateFilterOptions(){
+  const motifSel = document.getElementById("filter-motif");
+  motifSel.innerHTML = '<option value="">Tous les motifs</option>' + MOTIFS.map(m => `<option value="${m.id}">${m.label}</option>`).join("");
+  const agentSel = document.getElementById("filter-agent");
+  agentSel.innerHTML = '<option value="">Tous les comptes</option>' + agents.map(a => `<option value="${escapeHtml(a.name)}">${escapeHtml(a.name)}</option>`).join("");
+}
+function periodLabel(){
+  const period = document.getElementById("filter-period").value;
+  return {today:"aujourd'hui", week:"les 7 derniers jours", month:"les 30 derniers jours", all:"toute la période"}[period] || "";
+}
+function periodEntries(){
+  const period = document.getElementById("filter-period").value;
+  const now = new Date();
+  if(period === "today"){ const t = todayStr(now); return allEntries.filter(e => e.date === t); }
+  if(period === "week"){ const d = new Date(now); d.setDate(d.getDate()-7); return allEntries.filter(e => e.ts >= d.toISOString()); }
+  if(period === "month"){ const d = new Date(now); d.setDate(d.getDate()-30); return allEntries.filter(e => e.ts >= d.toISOString()); }
+  return allEntries.slice();
+}
+function periodComparison(){
+  const period = document.getElementById("filter-period").value;
+  const now = new Date();
+  let curStart, prevStart, prevEnd;
+  if(period === "today"){
+    curStart = new Date(now); curStart.setHours(0,0,0,0);
+    prevStart = new Date(curStart); prevStart.setDate(prevStart.getDate()-1);
+    prevEnd = curStart;
+  }else if(period === "week"){
+    curStart = new Date(now); curStart.setDate(curStart.getDate()-7);
+    prevStart = new Date(now); prevStart.setDate(prevStart.getDate()-14);
+    prevEnd = curStart;
+  }else if(period === "month"){
+    curStart = new Date(now); curStart.setDate(curStart.getDate()-30);
+    prevStart = new Date(now); prevStart.setDate(prevStart.getDate()-60);
+    prevEnd = curStart;
+  }else{
+    return null;
+  }
+  const current = allEntries.filter(e => e.ts >= curStart.toISOString()).length;
+  const previous = allEntries.filter(e => e.ts >= prevStart.toISOString() && e.ts < prevEnd.toISOString()).length;
+  return {current, previous};
+}
+function filteredEntries(){
+  const period = document.getElementById("filter-period").value;
+  const motif = document.getElementById("filter-motif").value;
+  const agent = document.getElementById("filter-agent").value;
+  const caller = document.getElementById("filter-caller").value;
+  const search = document.getElementById("filter-search").value.trim().toLowerCase();
+  const now = new Date();
+  let cutoff = null;
+  if(period === "today") cutoff = todayStr(now);
+  if(period === "week"){ const d = new Date(now); d.setDate(d.getDate()-7); cutoff = d.toISOString(); }
+  if(period === "month"){ const d = new Date(now); d.setDate(d.getDate()-30); cutoff = d.toISOString(); }
+  return allEntries.filter(e => {
+    if(period === "today" && e.date !== cutoff) return false;
+    if((period === "week" || period === "month") && e.ts < cutoff) return false;
+    if(motif && e.motifId !== motif) return false;
+    if(agent && e.agent !== agent) return false;
+    if(caller && e.callerType !== caller) return false;
+    if(search && !e.ref.toLowerCase().includes(search)) return false;
+    return true;
+  });
+}
+function computeHotRefsToday(){
+  const t = todayStr();
+  const counts = {};
+  allEntries.filter(e => e.date === t && e.ref).forEach(e => {
+    const key = e.ref.toLowerCase();
+    counts[key] = counts[key] || {ref: e.ref, count: 0};
+    counts[key].count++;
+  });
+  return Object.values(counts).filter(c => c.count >= HOT_THRESHOLD).sort((a,b) => b.count - a.count);
+}
+function computeSpikes(){
+  const t = todayStr();
+  const now = new Date();
+  const dayCounts = {};
+  allEntries.forEach(e => {
+    dayCounts[e.date] = dayCounts[e.date] || {};
+    dayCounts[e.date][e.motifId] = (dayCounts[e.date][e.motifId] || 0) + 1;
+  });
+  const past7 = [];
+  for(let i = 1; i <= 7; i++){ const d = new Date(now); d.setDate(d.getDate() - i); past7.push(todayStr(d)); }
+  const spikes = [];
+  MOTIFS.forEach(m => {
+    const todayC = (dayCounts[t] && dayCounts[t][m.id]) || 0;
+    const avg = past7.reduce((sum,d) => sum + ((dayCounts[d] && dayCounts[d][m.id]) || 0), 0) / 7;
+    if(avg >= 1 && todayC >= avg * 2 && todayC >= 3){
+      spikes.push({label: m.label, todayC, avg: Math.round(avg * 10) / 10});
+    }
+  });
+  return spikes;
+}
+function animateValue(el, to){
+  if(!el) return;
+  const from = parseInt(el.textContent) || 0;
+  if(from === to){ el.textContent = to; return; }
+  const dur = 400, start = performance.now();
+  function step(t){
+    const p = Math.min(1, (t - start) / dur);
+    el.textContent = Math.round(from + (to - from) * p);
+    if(p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+let chartHourlyInst = null;
+let chartMotifsInst = null;
+let chartCallerInst = null;
+let chartTrendInst = null;
+
+function renderProfessionalCharts() {
+  if (typeof Chart === 'undefined') return;
+
+  const list = periodEntries();
+
+  // 1. Hourly Activity Chart (Line Area)
+  const hourCounts = new Array(24).fill(0);
+  list.forEach(e => {
+    const h = parseInt((e.time || "").split(":")[0], 10);
+    if (!isNaN(h) && h >= 0 && h < 24) hourCounts[h]++;
+  });
+
+  const peakBadge = document.getElementById("hourly-peak-badge");
+  let peakHour = 0, peakCount = 0;
+  hourCounts.forEach((c, h) => { if (c > peakCount) { peakCount = c; peakHour = h; } });
+  if (peakBadge) {
+    peakBadge.textContent = peakCount > 0 ? `Pic : ${peakHour}h–${peakHour + 1}h (${peakCount} appels)` : "Pic : —";
+  }
+
+  const canvasHourly = document.getElementById("chart-hourly-canvas");
+  if (canvasHourly) {
+    if (chartHourlyInst) chartHourlyInst.destroy();
+    const ctx = canvasHourly.getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, 'rgba(245, 158, 11, 0.4)');
+    gradient.addColorStop(1, 'rgba(245, 158, 11, 0.0)');
+
+    chartHourlyInst = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Array.from({ length: 24 }, (_, i) => `${i}h`),
+        datasets: [{
+          label: 'Appels codifiés',
+          data: hourCounts,
+          borderColor: '#D97706',
+          borderWidth: 2.5,
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.35,
+          pointBackgroundColor: '#F59E0B',
+          pointRadius: 3,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            mode: 'index',
+            intersect: false,
+            backgroundColor: '#0F172A',
+            titleFont: { family: 'Plus Jakarta Sans', size: 12, weight: 'bold' },
+            bodyFont: { family: 'Plus Jakarta Sans', size: 12 },
+            padding: 10,
+            cornerRadius: 8
+          }
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { precision: 0, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // 2. Motifs Distribution Chart (Donut)
+  const motifCounts = {};
+  list.forEach(e => {
+    motifCounts[e.motifId] = (motifCounts[e.motifId] || 0) + 1;
+  });
+  const motifSorted = Object.entries(motifCounts).sort((a, b) => b[1] - a[1]);
+  const motifLabels = motifSorted.map(([id]) => {
+    const m = motifById(id);
+    return m ? m.label : id;
+  });
+  const motifData = motifSorted.map(([, count]) => count);
+
+  const canvasMotifs = document.getElementById("chart-motifs-canvas");
+  if (canvasMotifs) {
+    if (chartMotifsInst) chartMotifsInst.destroy();
+    chartMotifsInst = new Chart(canvasMotifs.getContext("2d"), {
+      type: 'doughnut',
+      data: {
+        labels: motifLabels.length ? motifLabels : ['Aucune donnée'],
+        datasets: [{
+          data: motifData.length ? motifData : [1],
+          backgroundColor: motifData.length ? [
+            '#3B82F6', '#F59E0B', '#EF4444', '#10B981', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6', '#F97316'
+          ] : ['#E2E8F0'],
+          borderWidth: 2,
+          borderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { font: { size: 11, family: 'Plus Jakarta Sans' }, boxWidth: 12 } }
+        },
+        cutout: '65%'
+      }
+    });
+  }
+
+  // 3. Caller Type Breakdown Chart (Pie)
+  const clientCount = list.filter(e => e.callerType === 'client').length;
+  const agentCount = list.filter(e => e.callerType === 'agent').length;
+  const unknownCount = list.filter(e => !e.callerType).length;
+
+  const canvasCaller = document.getElementById("chart-caller-canvas");
+  if (canvasCaller) {
+    if (chartCallerInst) chartCallerInst.destroy();
+    chartCallerInst = new Chart(canvasCaller.getContext("2d"), {
+      type: 'pie',
+      data: {
+        labels: ['Client', 'Agent / Expert', 'Non spécifié'],
+        datasets: [{
+          data: [clientCount, agentCount, unknownCount],
+          backgroundColor: ['#3B82F6', '#D97706', '#94A3B8'],
+          borderWidth: 2,
+          borderColor: '#FFFFFF'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { font: { size: 11, family: 'Plus Jakarta Sans' }, boxWidth: 12 } }
+        }
+      }
+    });
+  }
+
+  // 4. Daily Activity Trend Bar Chart
+  const dailyCounts = {};
+  list.forEach(e => {
+    dailyCounts[e.date] = (dailyCounts[e.date] || 0) + 1;
+  });
+  const daysSorted = Object.keys(dailyCounts).sort();
+  const trendLabels = daysSorted.map(d => {
+    const parts = d.split("-");
+    return parts.length === 3 ? `${parts[2]}/${parts[1]}` : d;
+  });
+  const trendData = daysSorted.map(d => dailyCounts[d]);
+
+  const canvasTrend = document.getElementById("chart-trend-canvas");
+  if (canvasTrend) {
+    if (chartTrendInst) chartTrendInst.destroy();
+    chartTrendInst = new Chart(canvasTrend.getContext("2d"), {
+      type: 'bar',
+      data: {
+        labels: trendLabels.length ? trendLabels : ['Aujourd\'hui'],
+        datasets: [{
+          label: 'Appels',
+          data: trendData.length ? trendData : [0],
+          backgroundColor: '#3B82F6',
+          borderRadius: 5,
+          hoverBackgroundColor: '#2563EB'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+          y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { precision: 0, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+}
+function renderLeaderboard(){
+  const list = periodEntries();
+  const counts = {};
+  list.forEach(e => { counts[e.agent] = (counts[e.agent] || 0) + 1; });
+  const ranked = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0,5);
+  const hint = document.getElementById("leaderboard-period-hint");
+  if(hint) hint.textContent = `Classement sur : ${periodLabel()}. Cliquez un nom pour le détail.`;
+  const el = document.getElementById("leaderboard");
+  if(!el) return;
+  if(ranked.length === 0){
+    el.innerHTML = '<p class="empty-state">Aucune codification sur cette période.</p>';
+    return;
+  }
+  const max = ranked[0][1];
+  el.innerHTML = ranked.map(([name,count],i) => `
+    <div class="leaderboard-row ${i===0?'r1':''}" data-name="${escapeHtml(name)}">
+      <div class="rank">${i+1}</div>
+      <div class="name">${escapeHtml(name)}</div>
+      <div class="bar-wrap"><div class="bar" style="width:${Math.round(count/max*100)}%"></div></div>
+      <div class="count">${count}</div>
+    </div>`).join("");
+  el.querySelectorAll(".leaderboard-row").forEach(row => {
+    row.addEventListener("click", () => showAgentDetail(row.dataset.name));
+  });
+}
+function showAgentDetail(name){
+  const panel = document.getElementById("agent-detail");
+  const entriesForAgent = allEntries.filter(e => e.agent === name);
+  const t = todayStr();
+  const todayC = entriesForAgent.filter(e => e.date === t).length;
+  const counts = {};
+  entriesForAgent.forEach(e => { counts[e.motifId] = (counts[e.motifId] || 0) + 1; });
+  const topEntries = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0,3);
+  const note = (notesStore.agents && notesStore.agents[name]) || "";
+  panel.innerHTML = `
+    <div class="section-title" style="font-size:14px;">${escapeHtml(name)}</div>
+    <div class="ad-stats">
+      <div class="m">Total : <b>${entriesForAgent.length}</b></div>
+      <div class="m">Aujourd'hui : <b>${todayC}</b></div>
+      ${topEntries.map(([id,c]) => { const m = motifById(id); return `<div class="m">${escapeHtml(m ? m.label : id)} : <b>${c}</b></div>`; }).join("")}
+    </div>
+    <label class="field-label">Note interne</label>
+    <textarea id="agent-note-input" placeholder="Note visible seulement par les admins...">${escapeHtml(note)}</textarea>
+    <button class="btn-outline ad-save" id="agent-note-save">Enregistrer la note</button>
+  `;
+  panel.classList.add("show");
+  document.getElementById("agent-note-save").addEventListener("click", async () => {
+    const btn = document.getElementById("agent-note-save");
+    const val = document.getElementById("agent-note-input").value;
+    btn.disabled = true;
+    btn.textContent = "Enregistrement...";
+    notesStore.agents = notesStore.agents || {};
+    notesStore.agents[name] = val;
+    const ok = await api.saveNotes(notesStore);
+    btn.disabled = false;
+    btn.textContent = "Enregistrer la note";
+    if (ok) {
+      // Recharger les notes depuis le serveur pour synchronisation
+      try {
+        const fresh = await api.getNotes();
+        if (fresh) {
+          notesStore = fresh;
+          notesStore.refs = notesStore.refs || {};
+          notesStore.agents = notesStore.agents || {};
+        }
+      } catch(e) {}
+      showToast(`Note sur ${name} enregistrée avec succès !`, "success");
+    } else {
+      showToast("Erreur lors de la sauvegarde de la note.", "error");
+    }
+  });
+}
+function renderRiskList(){
+  const now = new Date();
+  const cutoff = new Date(now); cutoff.setDate(cutoff.getDate() - 30);
+  const counts = {};
+  allEntries.filter(e => e.ts >= cutoff.toISOString() && e.ref).forEach(e => {
+    const m = motifById(e.motifId);
+    if(m && m.group === "reclamation"){
+      const key = e.ref.toLowerCase();
+      counts[key] = counts[key] || {ref: e.ref, count: 0};
+      counts[key].count++;
+    }
+  });
+  const risky = Object.values(counts).filter(c => c.count >= 2).sort((a,b) => b.count - a.count).slice(0,10);
+  const el = document.getElementById("risk-list");
+  if(risky.length === 0){
+    el.innerHTML = '<p class="empty-state">Aucun dossier à risque détecté.</p>';
+    return;
+  }
+  el.innerHTML = risky.map(r => `<div class="risk-row"><span class="ref">${escapeHtml(r.ref)}</span><span class="count">${r.count} réclamations</span></div>`).join("");
+}
+function renderReport(){
+  const list = periodEntries();
+  const total = list.length;
+  const hint = document.getElementById("report-period-hint");
+  if(hint) hint.textContent = `${total} appel(s) — ${periodLabel()}`;
+
+  const groups = {declaration:0, demande:0, reclamation:0};
+  list.forEach(e => { const m = motifById(e.motifId); if(m) groups[m.group]++; });
+  const maxGroup = Math.max(1, ...Object.values(groups));
+
+  const motifCounts = {};
+  list.forEach(e => { motifCounts[e.motifId] = (motifCounts[e.motifId] || 0) + 1; });
+  const topMotifs = Object.entries(motifCounts).sort((a,b) => b[1] - a[1]).slice(0,6);
+  const maxMotif = topMotifs.length ? topMotifs[0][1] : 1;
+
+  const agentCounts = {};
+  list.forEach(e => { agentCounts[e.agent] = (agentCounts[e.agent] || 0) + 1; });
+  const agentRanked = Object.entries(agentCounts).sort((a,b) => b[1] - a[1]);
+  const maxAgent = agentRanked.length ? agentRanked[0][1] : 1;
+
+  const cmp = periodComparison();
+  let cmpHtml = "";
+  if(cmp){
+    let deltaHtml;
+    if(cmp.previous === 0){
+      deltaHtml = cmp.current > 0 ? `<span class="delta up">+100%</span>` : `<span class="delta">—</span>`;
+    }else{
+      const pct = Math.round((cmp.current - cmp.previous) / cmp.previous * 100);
+      deltaHtml = `<span class="delta ${pct >= 0 ? 'up' : 'down'}">${pct >= 0 ? '+' : ''}${pct}%</span>`;
+    }
+    cmpHtml = `<div class="report-compare">
+      <div class="rc-block"><div class="label">Période actuelle</div><div class="value">${cmp.current}</div></div>
+      ${deltaHtml}
+      <div class="rc-block"><div class="label">Période précédente équivalente</div><div class="value">${cmp.previous}</div></div>
+    </div>`;
+  }
+
+  const spikes = computeSpikes();
+  const spikeHtml = spikes.length ? `<div class="report-section-title">Pics détectés aujourd'hui</div>${spikes.map(s =>
+    `<div class="spike-note">Pic sur « ${escapeHtml(s.label)} » : ${s.todayC} aujourd'hui contre ${s.avg} en moyenne sur 7 jours.</div>`
+  ).join("")}` : "";
+
+  document.getElementById("report-content").innerHTML = `
+    ${cmpHtml}
+    <div class="report-section-title">Répartition par catégorie</div>
+    ${Object.entries(groups).map(([g,c]) => `
+      <div class="leaderboard-row">
+        <div class="name">${GROUP_LABELS[g]}</div>
+        <div class="bar-wrap"><div class="bar" style="width:${Math.round(c/maxGroup*100)}%"></div></div>
+        <div class="count">${c}</div>
+      </div>`).join("")}
+    <div class="report-section-title">Top motifs</div>
+    ${topMotifs.length ? topMotifs.map(([id,c],i) => { const m = motifById(id); return `
+      <div class="leaderboard-row">
+        <div class="rank">${i+1}</div>
+        <div class="name">${escapeHtml(m ? m.label : id)}</div>
+        <div class="bar-wrap"><div class="bar" style="width:${Math.round(c/maxMotif*100)}%"></div></div>
+        <div class="count">${c}</div>
+      </div>`; }).join("") : '<p class="empty-state">Aucune donnée pour cette période.</p>'}
+    <div class="report-section-title">Répartition par chargé</div>
+    ${agentRanked.length ? agentRanked.map(([name,c]) => `
+      <div class="leaderboard-row">
+        <div class="name">${escapeHtml(name)}</div>
+        <div class="bar-wrap"><div class="bar" style="width:${Math.round(c/maxAgent*100)}%"></div></div>
+        <div class="count">${c}</div>
+      </div>`).join("") : '<p class="empty-state">Aucune donnée pour cette période.</p>'}
+    ${spikeHtml}
+  `;
+}
+function renderAdmin(){
+  const list = filteredEntries();
+  const t = todayStr();
+  const todayCount = allEntries.filter(e => e.date === t).length;
+  const hotRefs = computeHotRefsToday();
+  renderLeaderboard();
+  renderReport();
+  renderRiskList();
+  renderProfessionalCharts();
+
+  animateValue(document.getElementById("stat-total"), list.length);
+  animateValue(document.getElementById("stat-today"), todayCount);
+  animateValue(document.getElementById("stat-hot"), hotRefs.length);
+
+  const motifCounts = {};
+  list.forEach(e => { motifCounts[e.motifId] = (motifCounts[e.motifId] || 0) + 1; });
+  let topMotif = "—", topCount = 0;
+  Object.entries(motifCounts).forEach(([id,c]) => { if(c > topCount){ topCount = c; topMotif = id; } });
+  const topMotifObj = motifById(topMotif);
+  document.getElementById("stat-top-motif").textContent = topMotifObj ? topMotifObj.label : "—";
+
+  const alertSection = document.getElementById("alert-section");
+  alertSection.innerHTML = hotRefs.length > 0 ? `
+    <div class="alert-box">
+      <h3>Références codifiées ${HOT_THRESHOLD}+ fois aujourd'hui</h3>
+      ${hotRefs.map(h => `<div class="alert-row"><span>${escapeHtml(h.ref)}</span><b>${h.count} codifications</b></div>`).join("")}
+    </div>` : "";
+
+  const hotBadge = document.getElementById("sidebar-hot-badge");
+  if(hotBadge) hotBadge.textContent = hotRefs.length;
+
+  const tbody = document.getElementById("table-body");
+  const emptyState = document.getElementById("admin-empty");
+  if(list.length === 0){
+    tbody.innerHTML = "";
+    emptyState.classList.remove("hidden");
+  }else{
+    emptyState.classList.add("hidden");
+    const hotKeys = new Set(hotRefs.map(h => h.ref.toLowerCase()));
+    tbody.innerHTML = list.slice().sort((a,b) => b.ts.localeCompare(a.ts)).map(e => {
+      const m = motifById(e.motifId);
+      const isHot = e.ref && hotKeys.has(e.ref.toLowerCase()) && e.date === t;
+      const noteKey = (e.ref || ("entry_" + e.id)).toLowerCase();
+      const noteVal = (notesStore.refs && notesStore.refs[noteKey]) || "";
+      return `<tr>
+        <td class="ticket-no">${ticketNo(e.id)}</td>
+        <td class="ref-cell ${isHot ? 'ref-hot' : ''} ${!e.ref ? 'ref-none' : ''}">${escapeHtml(displayRef(e.ref))}</td>
+        <td><span class="badge badge-${m ? m.group : ''}">${m ? escapeHtml(m.label) : escapeHtml(e.motifId)}</span></td>
+        <td>${e.callerType ? `<span class="badge-caller ${e.callerType}">${callerLabel(e.callerType)}</span>` : '<span class="ref-none">—</span>'}</td>
+        <td>${escapeHtml(e.agent)}</td>
+        <td>${e.date}</td>
+        <td>${e.time}</td>
+        <td class="comment-cell">${e.comment ? escapeHtml(e.comment) : '<span class="ref-none">—</span>'}</td>
+        <td>${noteVal ? `<span class="note-preview" style="font-size:11.5px;color:var(--gold-text);font-weight:600;background:var(--amber-bg);padding:3px 8px;border-radius:6px;border:1px solid rgba(217,119,6,0.25);display:inline-block;" title="${escapeHtml(noteVal)}">📌 ${escapeHtml(noteVal)}</span>` : '<span class="ref-none">—</span>'}</td>
+        <td>
+          <button class="note-btn ${noteVal ? 'has-note' : ''}" data-id="${e.id}" title="${noteVal ? 'Modifier la note' : 'Ajouter une note'}">✎ Note</button>
+          <div class="note-inline" id="note-${e.id}">
+            <input type="text" value="${escapeHtml(noteVal)}" placeholder="Saisir la note admin...">
+            <button class="note-save" data-key="${escapeHtml(noteKey)}">OK</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join("");
+    tbody.querySelectorAll(".note-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.getElementById("note-" + btn.dataset.id).classList.toggle("show");
+      });
+    });
+    tbody.querySelectorAll(".note-inline input").forEach(input => {
+      input.addEventListener("keydown", e => {
+        if(e.key === "Enter") {
+          const btn = input.nextElementSibling;
+          if(btn) btn.click();
+        }
+      });
+    });
+    tbody.querySelectorAll(".note-save").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const input = btn.previousElementSibling;
+        const key = btn.dataset.key;
+        if(!key) return;
+        btn.disabled = true;
+        btn.textContent = "...";
+        notesStore.refs = notesStore.refs || {};
+        notesStore.refs[key] = input.value.trim();
+        const ok = await api.saveNotes(notesStore);
+        if (ok) {
+          // Recharger les notes depuis le serveur pour s'assurer de la synchronisation
+          try {
+            const fresh = await api.getNotes();
+            if (fresh) {
+              notesStore = fresh;
+              notesStore.refs = notesStore.refs || {};
+              notesStore.agents = notesStore.agents || {};
+            }
+          } catch(e) {}
+          showToast("Note enregistrée avec succès !", "success");
+        } else {
+          showToast("Erreur lors de la sauvegarde de la note.", "error");
+        }
+        renderAdmin();
+      });
+    });
+  }
+}
+function exportCsv(){
+  const list = filteredEntries();
+  const header = ["Ticket","Reference","Motif","Qui","Charge","Date","Heure","Commentaire","Note"];
+  const rows = list.map(e => {
+    const m = motifById(e.motifId);
+    const noteKey = (e.ref || ("entry_" + e.id)).toLowerCase();
+    const noteVal = (notesStore.refs && notesStore.refs[noteKey]) || "";
+    return [ticketNo(e.id), displayRef(e.ref), m ? m.label : e.motifId, callerLabel(e.callerType), e.agent, e.date, e.time, e.comment || "", noteVal];
+  });
+  const csv = [header, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(";")).join("\n");
+  const blob = new Blob(["\ufeff" + csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `registre-appels-${todayStr()}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+function exportPdf(){
+  if(!window.jspdf){ alert("Bibliothèque PDF indisponible (connexion internet requise pour ce bouton)."); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const list = filteredEntries().slice().sort((a,b) => b.ts.localeCompare(a.ts));
+  doc.setFontSize(16);
+  doc.text("Registre des appels — Sinistre auto", 14, 18);
+  doc.setFontSize(10);
+  doc.text(`Généré le ${new Date().toLocaleString('fr-FR')}`, 14, 25);
+  doc.text(`${list.length} appel(s) sur la période sélectionnée`, 14, 31);
+  let y = 42;
+  doc.setFontSize(9);
+  doc.setFont(undefined, "bold");
+  doc.text("Ticket", 14, y); doc.text("Référence", 42, y); doc.text("Motif", 78, y); doc.text("Chargé", 145, y); doc.text("Date", 178, y);
+  doc.setFont(undefined, "normal");
+  y += 6;
+  list.forEach(e => {
+    if(y > 285){ doc.addPage(); y = 20; }
+    const m = motifById(e.motifId);
+    doc.text(String(ticketNo(e.id)), 14, y);
+    doc.text(String(displayRef(e.ref)), 42, y);
+    doc.text(String(m ? m.label : e.motifId).slice(0,42), 78, y);
+    doc.text(String(e.agent).slice(0,18), 145, y);
+    doc.text(e.date, 178, y);
+    y += 6;
+  });
+  doc.save(`registre-appels-${todayStr()}.pdf`);
+}
+function renderAccountList(){
+  const container = document.getElementById("account-list");
+  const allAccounts = [];
+  agents.forEach(a => allAccounts.push({ name: a.name, role: 'agent' }));
+  adminUsers.forEach(a => allAccounts.push({ name: a.name, role: 'admin' }));
+
+  if(allAccounts.length === 0){
+    container.innerHTML = '<p class="empty-state">Aucun compte pour le moment.</p>';
+    return;
+  }
+  container.innerHTML = allAccounts.map(a => {
+    const safeName = escapeHtml(a.name);
+    return `
+      <div class="account-item" style="border-bottom:1px solid var(--line);padding:10px 0;" data-name="${safeName}" data-role="${a.role}">
+        <div class="account-row" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>
+            <span class="name-btn" style="cursor:pointer;font-weight:600;">${safeName}</span>
+            <span class="role-badge ${a.role}" style="margin-left:6px;">${a.role === 'admin' ? 'Admin' : 'Chargé'}</span>
+          </span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-outline edit-btn" style="padding:3px 10px;font-size:11px;">Modifier</button>
+            <button class="remove" style="padding:3px 10px;font-size:11px;">Retirer</button>
+          </div>
+        </div>
+        <div class="edit-box hidden" style="margin-top:10px;padding:12px;background:var(--panel-2);border-radius:6px;border:1px solid var(--line);">
+          <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:8px;font-weight:600;">Modifier l'utilisateur</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+            <div style="flex:1;min-width:140px;">
+              <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:3px;">Nom d'utilisateur</label>
+              <input type="text" class="edit-name-input" value="${safeName}" placeholder="Nouveau nom" style="width:100%;padding:6px 10px;font-size:12.5px;border:1px solid var(--line-strong);border-radius:4px;background:var(--panel);color:var(--text);">
+            </div>
+            <div style="flex:1;min-width:160px;">
+              <label style="display:block;font-size:11px;color:var(--text-muted);margin-bottom:3px;">Nouveau mot de passe (optionnel)</label>
+              <input type="password" class="edit-pass-input" placeholder="Laisser vide si inchangé" style="width:100%;padding:6px 10px;font-size:12.5px;border:1px solid var(--line-strong);border-radius:4px;background:var(--panel);color:var(--text);">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-gold save-edit-btn" style="padding:6px 16px;font-size:11.5px;width:auto;">Enregistrer les modifications</button>
+            <button class="btn-outline cancel-edit-btn" style="padding:6px 12px;font-size:11.5px;">Annuler</button>
+          </div>
+        </div>
+      </div>`;
+  }).join("");
+  
+  container.querySelectorAll(".name-btn").forEach(el => {
+    const item = el.closest(".account-item");
+    el.addEventListener("click", () => showAgentDetail(item.dataset.name));
+  });
+
+  container.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const item = btn.closest(".account-item");
+      const box = item.querySelector(".edit-box");
+      box.classList.toggle("hidden");
+      if (!box.classList.contains("hidden")) {
+        const nameInput = item.querySelector(".edit-name-input");
+        nameInput.focus();
+        nameInput.select();
+      }
+    });
+  });
+
+  container.querySelectorAll(".cancel-edit-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const item = btn.closest(".account-item");
+      item.querySelector(".edit-box").classList.add("hidden");
+    });
+  });
+
+  container.querySelectorAll(".save-edit-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const item = btn.closest(".account-item");
+      const oldName = item.dataset.name;
+      const role = item.dataset.role;
+      const nameInput = item.querySelector(".edit-name-input");
+      const passInput = item.querySelector(".edit-pass-input");
+      const newName = nameInput.value.trim();
+      const newPassword = passInput.value.trim() || null;
+
+      if (!newName) { alert("Le nom ne peut pas être vide."); return; }
+      if (newName === oldName && !newPassword) {
+        alert("Aucune modification saisie.");
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = 'Enregistrement...';
+
+      let ok = false;
+      if (role === 'admin') {
+        ok = await api.updateAdmin(oldName, newName !== oldName ? newName : null, newPassword);
+      } else {
+        ok = await api.updateAgent(oldName, newName !== oldName ? newName : null, newPassword);
+      }
+
+      if (ok) {
+        if (oldName === currentAgent) {
+          currentAgent = newName;
+          await api.setCurrentAgent(newName);
+        }
+
+        allEntries = await api.getEntries();
+        agents = await api.getAgents();
+        adminUsers = await api.getAdmins();
+
+        renderAccountList();
+        populateFilterOptions();
+        loadLoginUsersDropdown();
+        renderAdmin();
+      } else {
+        alert(`Échec de la modification pour ${oldName}.`);
+        btn.disabled = false;
+        btn.textContent = 'Enregistrer';
+      }
+    });
+  });
+  
+  container.querySelectorAll(".remove").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const item = btn.closest(".account-item");
+      const name = item.dataset.name;
+      const role = item.dataset.role;
+      btn.disabled = true;
+      btn.textContent = '...';
+      if (role === 'admin') {
+        const ok = await api.deleteAdmin(name);
+        if (ok) adminUsers = adminUsers.filter(a => a.name !== name);
+      } else {
+        const ok = await api.deleteAgent(name);
+        if (ok) agents = agents.filter(a => a.name !== name);
+      }
+      renderAccountList();
+      populateFilterOptions();
+      loadLoginUsersDropdown();
+    });
+  });
+}
+
+
+async function addAccount(){
+  const nameInput = document.getElementById("new-account-name");
+  const passInput = document.getElementById("new-account-password");
+  const roleInput = document.getElementById("new-account-role");
+  const addBtn = document.getElementById("add-account-btn");
+  const name = nameInput.value.trim();
+  const password = passInput.value.trim();
+  const role = roleInput.value;
+  if(!name || !password) {
+    showToast("Veuillez remplir le nom et le mot de passe", "warning");
+    return;
+  }
+
+  addBtn.disabled = true;
+  addBtn.textContent = '...';
+
+  if (role === 'admin') {
+    const ok = await api.addAdmin(name, password);
+    if (ok) {
+      const existingIndex = adminUsers.findIndex(a => a.name.toLowerCase() === name.toLowerCase());
+      if (existingIndex !== -1) adminUsers[existingIndex] = { name, password: '********' };
+      else adminUsers.push({ name, password: '********' });
+      showToast(`Administrateur ${name} ajouté avec succès`, "success");
+    } else {
+      showToast(`Échec de l'ajout de ${name}`, "error");
+    }
+  } else {
+    const ok = await api.addAgent(name, password);
+    if (ok) {
+      const existingIndex = agents.findIndex(a => a.name.toLowerCase() === name.toLowerCase());
+      if (existingIndex !== -1) agents[existingIndex] = { name, password: '********' };
+      else agents.push({ name, password: '********' });
+      showToast(`Chargé ${name} ajouté avec succès`, "success");
+    } else {
+      showToast(`Échec de l'ajout de ${name}`, "error");
+    }
+  }
+
+  addBtn.disabled = false;
+  addBtn.textContent = 'Ajouter';
+  nameInput.value = "";
+  passInput.value = "";
+  renderAccountList();
+  populateFilterOptions();
+  loadLoginUsersDropdown();
+}
+
+function setupAdminSidebar() {
+  document.querySelectorAll(".sidebar-item").forEach(item => {
+    item.onclick = () => {
+      document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
+      document.querySelectorAll(".admin-tab-pane").forEach(p => p.classList.remove("active"));
+      item.classList.add("active");
+      const targetId = item.dataset.tab;
+      const targetPane = document.getElementById(targetId);
+      if (targetPane) targetPane.classList.add("active");
+    };
+  });
+}
+
+async function enterAdminView(){
+  if (currentRole !== 'admin') {
+    return await enterAgentView();
+  }
+  
+  // Basculement ultra-rapide de l'écran (0ms de latence perçue)
+  goTo("view-admin");
+  renderUserDropdown(currentAgent, currentRole);
+  document.getElementById("agent-detail").classList.remove("show");
+
+  // Rendu immédiat des données déjà présentes
+  populateFilterOptions();
+  renderAdmin();
+  renderAccountList();
+  setupImportUI();
+  setupAdminSidebar();
+
+  // Chargement en PARALLÈLE de toutes les ressources (promise.all = 80% plus rapide)
+  showLoading("Chargement de l'administration...");
+  try {
+    const [entriesData, agentsData, adminsData, thresholdData, notesData] = await Promise.all([
+      api.getEntries(),
+      api.getAgents(),
+      api.getAdmins(),
+      api.getThreshold(),
+      api.getNotes()
+    ]);
+    allEntries = entriesData || [];
+    agents = agentsData || [];
+    adminUsers = adminsData || [];
+    HOT_THRESHOLD = thresholdData || 3;
+    notesStore = notesData || { refs: {}, agents: {} };
+    notesStore.refs = notesStore.refs || {};
+    notesStore.agents = notesStore.agents || {};
+    
+    document.getElementById("threshold-input").value = HOT_THRESHOLD;
+    populateFilterOptions();
+    renderAdmin();
+    renderAccountList();
+  } catch(e) {
+    console.error("Erreur chargement admin:", e);
+  } finally {
+    hideLoading();
+  }
+}
+
+function populateYearDropdown() {
+  const select = document.getElementById("ref-seg-year");
+  if (!select) return;
+
+  const currentYear = new Date().getFullYear();
+  let html = `<option value="">Année...</option>`;
+
+  for (let year = currentYear; year >= 1950; year--) {
+    const isSelected = year === currentYear ? "selected" : "";
+    html += `<option value="${year}" ${isSelected}>${year}</option>`;
+  }
+
+  select.innerHTML = html;
+}
+
+/* ---------- init ---------- */
+async function init(){
+  updateDbStatusUI();
+  renderMotifButtons();
+  populateYearDropdown();
+  setupUserDropdownEvents();
+  setupAgentHistoryEvents();
+
+  currentAgent = await api.getCurrentAgent();
+  currentRole = await api.getCurrentRole();
+  const token = localStorage.getItem("codif_token");
+
+  // Charger le dropdown et valider la session en parallèle
+  const tasks = [loadLoginUsersDropdown()];
+  if (currentAgent && token) {
+    tasks.push(
+      fetch(getApiUrl('/api/status'), {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(res => {
+        if (!res.ok) {
+          currentAgent = null;
+          currentRole = null;
+          localStorage.removeItem("codif_token");
+          api.clearCurrentAgent();
+          api.clearCurrentRole();
+        }
+      }).catch(() => {})
+    );
+  }
+  await Promise.all(tasks);
+
+  document.querySelectorAll(".caller-btn").forEach(btn => {
+    btn.addEventListener("click", () => selectCallerType(btn.dataset.type));
+  });
+  document.getElementById("comment-input").addEventListener("input", updateSubmitState);
+  document.getElementById("ref-input").addEventListener("input", updateSubmitState);
+  ["ref-seg-usage", "ref-seg-year", "ref-seg-chrono"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener("input", updateRefFromSegments);
+      el.addEventListener("change", updateRefFromSegments);
+    }
+  });
+  document.getElementById("ref-input").addEventListener("keydown", e => {
+    if(e.key === "Enter" && !document.getElementById("submit-btn").disabled) submitEntry();
+  });
+  document.getElementById("submit-btn").addEventListener("click", submitEntry);
+  document.getElementById("new-codif-btn").addEventListener("click", resetCodifForm);
+  ["filter-period","filter-motif","filter-agent","filter-caller"].forEach(id => document.getElementById(id).addEventListener("change", renderAdmin));
+  document.getElementById("filter-search").addEventListener("input", debounce(renderAdmin, 150));
+  document.getElementById("export-btn").addEventListener("click", exportCsv);
+  document.getElementById("export-pdf-btn").addEventListener("click", exportPdf);
+  document.getElementById("threshold-input").addEventListener("change", async e => {
+    let v = parseInt(e.target.value) || 3;
+    if(v < 2) v = 2;
+    if(v > 20) v = 20;
+    HOT_THRESHOLD = v;
+    e.target.value = v;
+    await api.saveThreshold(v);
+    renderAdmin();
+  });
+  document.getElementById("add-account-btn").addEventListener("click", addAccount);
+  document.getElementById("new-account-name").addEventListener("keydown", e => { if(e.key === "Enter") addAccount(); });
+
+  if(currentAgent && currentRole === 'admin'){
+    enterAdminView();
+  }else if(currentAgent){
+    enterAgentView();
+  }else{
+    goTo("view-login");
+  }
+}
+init();
+</script>
+</body>
+</html>

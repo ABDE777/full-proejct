@@ -1,0 +1,16 @@
+{
+  "name": "registre-appel-fullstack",
+  "version": "1.0.0",
+  "description": "Registre des appels sinistre auto - Full stack application",
+  "scripts": {
+    "dev": "npm run dev:backend",
+    "dev:backend": "cd registre-code && npm run dev",
+    "start:backend": "cd registre-code && npm start"
+  },
+  "workspaces": [
+    "registre-code"
+  ],
+  "dependencies": {
+    "serverless-http": "^3.2.0"
+  }
+}
