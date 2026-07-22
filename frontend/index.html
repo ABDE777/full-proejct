@@ -1423,68 +1423,39 @@ const api = {
   },
 
   async getEntries() {
-    try {
-      const res = await authFetch('/api/entries');
-      if (res.ok) return await res.json();
-    } catch (e) {}
-    try { return JSON.parse(localStorage.getItem("codif_entries") || "[]"); } catch (e) { return []; }
+    const res = await authFetch('/api/entries');
+    if (res.ok) return await res.json();
+    throw new Error('Failed to fetch entries from API');
   },
 
   async insertEntry(entry) {
-    try {
-      const res = await authFetch('/api/entries', {
-        method: 'POST',
-        body: JSON.stringify(entry)
-      });
-      if (res.ok) return true;
-    } catch (e) {}
-    try {
-      const entries = await this.getEntries();
-      entries.push(entry);
-      localStorage.setItem("codif_entries", JSON.stringify(entries));
-      return true;
-    } catch (e) {
-      return false;
-    }
+    const res = await authFetch('/api/entries', {
+      method: 'POST',
+      body: JSON.stringify(entry)
+    });
+    return res.ok;
   },
 
   async updateEntry(entry) {
-    try {
-      const res = await authFetch('/api/entries/' + encodeURIComponent(entry.id), {
-        method: 'PUT',
-        body: JSON.stringify(entry)
-      });
-      if (res.ok) return true;
-    } catch (e) {}
-    try {
-      const entries = await this.getEntries();
-      const idx = entries.findIndex(e => e.id === entry.id);
-      if (idx !== -1) {
-        entries[idx] = { ...entries[idx], ...entry };
-        localStorage.setItem("codif_entries", JSON.stringify(entries));
-        return true;
-      }
-    } catch (e) {}
-    return false;
+    const res = await authFetch('/api/entries/' + encodeURIComponent(entry.id), {
+      method: 'PUT',
+      body: JSON.stringify(entry)
+    });
+    return res.ok;
   },
 
   async saveEntries(entries) {
-    try {
-      const res = await authFetch('/api/entries/batch', {
-        method: 'POST',
-        body: JSON.stringify({ entries })
-      });
-      if (res.ok) return true;
-    } catch (e) {}
-    try { localStorage.setItem("codif_entries", JSON.stringify(entries)); return true; } catch (e) { return false; }
+    const res = await authFetch('/api/entries/batch', {
+      method: 'POST',
+      body: JSON.stringify({ entries })
+    });
+    return res.ok;
   },
 
   async getAgents() {
-    try {
-      const res = await authFetch('/api/agents');
-      if (res.ok) return await res.json();
-    } catch (e) {}
-    try { return JSON.parse(localStorage.getItem("codif_agents") || "[]"); } catch (e) { return []; }
+    const res = await authFetch('/api/agents');
+    if (res.ok) return await res.json();
+    throw new Error('Failed to fetch agents from API');
   },
 
   async addAgent(name, password) {
@@ -1518,11 +1489,9 @@ const api = {
   },
 
   async getAdmins() {
-    try {
-      const res = await authFetch('/api/admins');
-      if (res.ok) return await res.json();
-    } catch (e) {}
-    try { return JSON.parse(localStorage.getItem("codif_admins") || "[]"); } catch (e) { return []; }
+    const res = await authFetch('/api/admins');
+    if (res.ok) return await res.json();
+    throw new Error('Failed to fetch admins from API');
   },
 
   async addAdmin(name, password) {
@@ -1593,45 +1562,34 @@ const api = {
   async clearCurrentRole() { localStorage.removeItem("codif_role"); },
 
   async getThreshold() {
-    try {
-      const res = await authFetch('/api/settings');
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.threshold) return data.threshold;
-      }
-    } catch (e) {}
-    const v = localStorage.getItem("codif_threshold");
-    return v ? parseInt(v) : 3;
+    const res = await authFetch('/api/settings');
+    if (res.ok) {
+      const data = await res.json();
+      return data.threshold || 3;
+    }
+    return 3;
   },
 
   async saveThreshold(v) {
-    try {
-      const res = await authFetch('/api/settings', {
-        method: 'POST',
-        body: JSON.stringify({ threshold: v })
-      });
-      if (res.ok) return true;
-    } catch (e) {}
-    try { localStorage.setItem("codif_threshold", String(v)); return true; } catch (e) { return false; }
+    const res = await authFetch('/api/settings', {
+      method: 'POST',
+      body: JSON.stringify({ threshold: v })
+    });
+    return res.ok;
   },
 
   async getNotes() {
-    try {
-      const res = await authFetch('/api/notes');
-      if (res.ok) return await res.json();
-    } catch (e) {}
-    try { return JSON.parse(localStorage.getItem("codif_notes") || '{"refs":{},"agents":{}}'); } catch (e) { return { refs: {}, agents: {} }; }
+    const res = await authFetch('/api/notes');
+    if (res.ok) return await res.json();
+    return { refs: {}, agents: {} };
   },
 
   async saveNotes(notes) {
-    try {
-      const res = await authFetch('/api/notes', {
-        method: 'POST',
-        body: JSON.stringify(notes)
-      });
-      if (res.ok) return true;
-    } catch (e) {}
-    try { localStorage.setItem("codif_notes", JSON.stringify(notes)); return true; } catch (e) { return false; }
+    const res = await authFetch('/api/notes', {
+      method: 'POST',
+      body: JSON.stringify(notes)
+    });
+    return res.ok;
   }
 };
 
