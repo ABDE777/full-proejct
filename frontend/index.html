@@ -2155,12 +2155,8 @@ function validateSinistreRef(refStr) {
   }
 
   const chrono = cleaned.slice(7);
-  if (chrono.length < 4) {
-    return { valid: false, reason: `N° chronologique trop court (${chrono.length}/4 chiffres minimum)` };
-  }
-
-  if (chrono.length > 7) {
-    return { valid: false, reason: `N° chronologique trop long (${chrono.length}/7 chiffres maximum)` };
+  if (chrono.length < 1) {
+    return { valid: false, reason: `N° chronologique manquant (au moins 1 chiffre requis)` };
   }
 
   return {
