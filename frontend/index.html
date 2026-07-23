@@ -1434,11 +1434,29 @@
 
             <!-- Chart 4: Daily Activity Trend Bar -->
             <div class="card chart-card">
-              <div class="section-title" style="font-size:15px;margin-bottom:10px;">📅 Évolution quotidienne de l'activité</div>
-              <div class="section-hint" style="margin-bottom:14px;">Historique des codifications par jour.</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div class="section-title" style="font-size:15px;margin:0;">📅 Évolution quotidienne de l'activité</div>
+                <select id="trend-comparison" style="padding:6px 10px;border:1px solid var(--line-strong);border-radius:var(--radius);font-size:12px;background:var(--panel-2);color:var(--text);">
+                  <option value="none">Sans comparaison</option>
+                  <option value="week">Semaine précédente</option>
+                  <option value="month">Mois précédent</option>
+                  <option value="year">Année précédente</option>
+                </select>
+              </div>
+              <div class="section-hint" style="margin-bottom:14px;">Historique des codifications par jour avec comparaison optionnelle.</div>
               <div style="position:relative;height:220px;width:100%;">
                 <canvas id="chart-trend-canvas"></canvas>
                 <div id="chart-trend-skeleton" class="skeleton skeleton-chart hidden"></div>
+              </div>
+            </div>
+
+            <!-- Chart 5: Peak Hours Heat Map -->
+            <div class="card chart-card">
+              <div class="section-title" style="font-size:15px;margin-bottom:10px;">🔥 Heat map - Heures de pointe</div>
+              <div class="section-hint" style="margin-bottom:14px;">Intensité des appels par heure et jour de la semaine.</div>
+              <div style="position:relative;height:280px;width:100%;">
+                <canvas id="chart-heatmap-canvas"></canvas>
+                <div id="chart-heatmap-skeleton" class="skeleton skeleton-chart hidden"></div>
               </div>
             </div>
 
@@ -1466,6 +1484,7 @@
               <input id="filter-date-start" type="date" placeholder="Date début">
               <input id="filter-date-end" type="date" placeholder="Date fin">
               <input id="filter-search" type="text" placeholder="Rechercher une référence...">
+              <button class="btn-outline" id="import-entries-btn">Importer CSV/Excel</button>
               <button class="btn-outline" id="export-btn">Exporter Excel</button>
               <button class="btn-outline" id="export-pdf-btn">Exporter PDF</button>
             </div>
@@ -1587,6 +1606,34 @@
       </div>
     </div>
   </section>
+
+  <!-- Modale confirmation -->
+  <div id="confirm-modal" class="hidden" style="position:fixed;inset:0;z-index:100;background:rgba(16,24,40,.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);">
+    <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:36px 32px;max-width:400px;width:90%;box-shadow:var(--shadow-lg);">
+      <h3 style="font-family:var(--serif);font-size:20px;font-weight:normal;margin:0 0 8px;color:var(--paper);">Confirmation</h3>
+      <p id="confirm-message" style="font-size:13px;color:var(--text-secondary);margin:0 0 22px;"></p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="confirm-cancel-btn" style="padding:10px 20px;border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--panel-2);color:var(--text);font-size:13px;cursor:pointer;">Annuler</button>
+        <button id="confirm-ok-btn" style="padding:10px 20px;background:var(--red);border:none;border-radius:var(--radius);color:white;font-size:13px;font-weight:600;cursor:pointer;">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale import d'appels -->
+  <div id="import-entries-modal" class="hidden" style="position:fixed;inset:0;z-index:100;background:rgba(16,24,40,.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);">
+    <div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:36px 32px;max-width:500px;width:90%;box-shadow:var(--shadow-lg);">
+      <h3 style="font-family:var(--serif);font-size:20px;font-weight:normal;margin:0 0 8px;color:var(--paper);">Importer des appels (CSV/Excel)</h3>
+      <p style="font-size:13px;color:var(--text-secondary);margin:0 0 22px;">Importez un fichier CSV ou Excel avec les colonnes: référence, motif, agent, date, heure, commentaire.</p>
+      <label class="field-label">Fichier</label>
+      <input id="import-entries-file" type="file" accept=".csv,.xlsx,.xls" style="width:100%;padding:11px 13px;font-size:14px;border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--panel-2);color:var(--text);margin-bottom:12px;">
+      <div id="import-entries-preview" style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;min-height:20px;"></div>
+      <div id="import-entries-status" style="font-size:12.5px;color:var(--red);min-height:16px;margin-bottom:10px;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button id="import-entries-cancel" style="padding:10px 20px;border:1px solid var(--line-strong);border-radius:var(--radius);background:var(--panel-2);color:var(--text);font-size:13px;cursor:pointer;">Annuler</button>
+        <button id="import-entries-submit" class="btn-gold" style="padding:10px 20px;" disabled>Importer</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Modale changement de mot de passe (première connexion) -->
   <div id="change-pw-modal" class="hidden" style="position:fixed;inset:0;z-index:100;background:rgba(16,24,40,.55);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);">
@@ -3109,13 +3156,14 @@ let chartHourlyInst = null;
 let chartMotifsInst = null;
 let chartCallerInst = null;
 let chartTrendInst = null;
+let chartHeatmapInst = null;
 
 function renderProfessionalCharts() {
   if (typeof Chart === 'undefined') return;
 
   const list = periodEntries();
 
-  const chartSkeletons = ['chart-hourly-skeleton', 'chart-motifs-skeleton', 'chart-caller-skeleton', 'chart-trend-skeleton'];
+  const chartSkeletons = ['chart-hourly-skeleton', 'chart-motifs-skeleton', 'chart-caller-skeleton', 'chart-trend-skeleton', 'chart-heatmap-skeleton'];
   chartSkeletons.forEach(id => {
     const el = document.getElementById(id);
     if(el) el.classList.add('hidden');
@@ -3271,7 +3319,8 @@ function renderProfessionalCharts() {
     });
   }
 
-  // 4. Daily Activity Trend Bar Chart
+  // 4. Daily Activity Trend Bar Chart with Comparison
+  const comparisonType = document.getElementById("trend-comparison")?.value || 'none';
   const dailyCounts = {};
   list.forEach(e => {
     dailyCounts[e.date] = (dailyCounts[e.date] || 0) + 1;
@@ -3283,28 +3332,172 @@ function renderProfessionalCharts() {
   });
   const trendData = daysSorted.map(d => dailyCounts[d]);
 
+  // Calculate comparison data
+  let comparisonData = [];
+  let comparisonLabel = '';
+  
+  if (comparisonType !== 'none' && daysSorted.length > 0) {
+    const startDate = new Date(daysSorted[0]);
+    const endDate = new Date(daysSorted[daysSorted.length - 1]);
+    
+    let comparisonStartDate, comparisonEndDate;
+    
+    if (comparisonType === 'week') {
+      comparisonStartDate = new Date(startDate);
+      comparisonStartDate.setDate(comparisonStartDate.getDate() - 7);
+      comparisonEndDate = new Date(endDate);
+      comparisonEndDate.setDate(comparisonEndDate.getDate() - 7);
+      comparisonLabel = 'Semaine précédente';
+    } else if (comparisonType === 'month') {
+      comparisonStartDate = new Date(startDate);
+      comparisonStartDate.setMonth(comparisonStartDate.getMonth() - 1);
+      comparisonEndDate = new Date(endDate);
+      comparisonEndDate.setMonth(comparisonEndDate.getMonth() - 1);
+      comparisonLabel = 'Mois précédent';
+    } else if (comparisonType === 'year') {
+      comparisonStartDate = new Date(startDate);
+      comparisonStartDate.setFullYear(comparisonStartDate.getFullYear() - 1);
+      comparisonEndDate = new Date(endDate);
+      comparisonEndDate.setFullYear(comparisonEndDate.getFullYear() - 1);
+      comparisonLabel = 'Année précédente';
+    }
+    
+    // Get comparison entries
+    const comparisonEntries = allEntries.filter(e => {
+      const entryDate = new Date(e.date);
+      return entryDate >= comparisonStartDate && entryDate <= comparisonEndDate;
+    });
+    
+    // Build comparison data aligned with current period
+    comparisonData = daysSorted.map((d, i) => {
+      const comparisonDate = new Date(d);
+      if (comparisonType === 'week') {
+        comparisonDate.setDate(comparisonDate.getDate() - 7);
+      } else if (comparisonType === 'month') {
+        comparisonDate.setMonth(comparisonDate.getMonth() - 1);
+      } else if (comparisonType === 'year') {
+        comparisonDate.setFullYear(comparisonDate.getFullYear() - 1);
+      }
+      const dateStr = comparisonDate.toISOString().split('T')[0];
+      return comparisonEntries.filter(e => e.date === dateStr).length;
+    });
+  }
+
   const canvasTrend = document.getElementById("chart-trend-canvas");
   if (canvasTrend) {
     if (chartTrendInst) chartTrendInst.destroy();
+    
+    const datasets = [{
+      label: 'Période actuelle',
+      data: trendData.length ? trendData : [0],
+      backgroundColor: '#3B82F6',
+      borderRadius: 5,
+      hoverBackgroundColor: '#2563EB'
+    }];
+    
+    if (comparisonType !== 'none' && comparisonData.length > 0) {
+      datasets.push({
+        label: comparisonLabel,
+        data: comparisonData,
+        backgroundColor: 'rgba(217, 119, 6, 0.6)',
+        borderRadius: 5,
+        hoverBackgroundColor: 'rgba(217, 119, 6, 0.8)'
+      });
+    }
+    
     chartTrendInst = new Chart(canvasTrend.getContext("2d"), {
       type: 'bar',
       data: {
         labels: trendLabels.length ? trendLabels : ['Aujourd\'hui'],
-        datasets: [{
-          label: 'Appels',
-          data: trendData.length ? trendData : [0],
-          backgroundColor: '#3B82F6',
-          borderRadius: 5,
-          hoverBackgroundColor: '#2563EB'
-        }]
+        datasets: datasets
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: { 
+          legend: { 
+            display: comparisonType !== 'none',
+            position: 'top',
+            labels: { font: { size: 11, family: 'Plus Jakarta Sans' }, boxWidth: 12 }
+          } 
+        },
         scales: {
           x: { grid: { display: false }, ticks: { font: { size: 11 } } },
           y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { precision: 0, font: { size: 11 } } }
+        }
+      }
+    });
+  }
+
+  // 5. Peak Hours Heat Map (using stacked bar chart)
+  const daysOfWeek = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const heatmapData = Array(7).fill(null).map(() => Array(24).fill(0));
+
+  list.forEach(e => {
+    if (!e.date || !e.time) return;
+    const date = new Date(e.date);
+    const day = date.getDay();
+    const [hourStr] = e.time.split(':');
+    const hour = parseInt(hourStr, 10);
+    if (!isNaN(hour) && hour >= 0 && hour < 24) {
+      heatmapData[day][hour]++;
+    }
+  });
+
+  const maxCount = Math.max(...heatmapData.flat());
+  const canvasHeatmap = document.getElementById("chart-heatmap-canvas");
+  if (canvasHeatmap) {
+    if (chartHeatmapInst) chartHeatmapInst.destroy();
+    const ctx = canvasHeatmap.getContext("2d");
+    
+    // Create datasets for each day
+    const datasets = daysOfWeek.map((day, dayIndex) => ({
+      label: day,
+      data: heatmapData[dayIndex],
+      backgroundColor: (ctx) => {
+        const value = ctx.dataset.data[ctx.dataIndex];
+        const alpha = maxCount > 0 ? value / maxCount : 0;
+        return `rgba(217, 119, 6, ${Math.max(0.1, alpha)})`;
+      },
+      borderColor: 'rgba(217, 119, 6, 0.3)',
+      borderWidth: 1
+    }));
+
+    chartHeatmapInst = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: hours.map(h => `${String(h).padStart(2, '0')}h`),
+        datasets: datasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items) => items[0].label,
+              label: (item) => {
+                const day = item.dataset.label;
+                const count = item.raw;
+                return `${day}: ${count} appel(s)`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            stacked: true,
+            grid: { display: false },
+            ticks: { font: { size: 10 }, maxRotation: 45 }
+          },
+          y: {
+            stacked: true,
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            ticks: { precision: 0, font: { size: 11 } }
+          }
         }
       }
     });
@@ -4349,6 +4542,136 @@ document.getElementById("confirm-ok-btn").addEventListener("click", () => {
   closeConfirmModal();
 });
 
+/* ---------- Import Entries Modal Functions ---------- */
+let parsedEntries = [];
+
+function openImportEntriesModal() {
+  document.getElementById("import-entries-modal").classList.remove("hidden");
+  document.getElementById("import-entries-file").value = "";
+  document.getElementById("import-entries-preview").textContent = "";
+  document.getElementById("import-entries-status").textContent = "";
+  document.getElementById("import-entries-submit").disabled = true;
+  parsedEntries = [];
+}
+
+function closeImportEntriesModal() {
+  document.getElementById("import-entries-modal").classList.add("hidden");
+  parsedEntries = [];
+}
+
+document.getElementById("import-entries-btn").addEventListener("click", openImportEntriesModal);
+document.getElementById("import-entries-cancel").addEventListener("click", closeImportEntriesModal);
+
+document.getElementById("import-entries-file").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  document.getElementById("import-entries-status").textContent = "";
+  document.getElementById("import-entries-preview").textContent = "";
+  document.getElementById("import-entries-submit").disabled = true;
+  parsedEntries = [];
+
+  try {
+    if (file.name.endsWith('.csv')) {
+      const text = await file.text();
+      const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim()));
+      if (rows.length > 1) {
+        const headers = rows[0];
+        parsedEntries = rows.slice(1).filter(row => row.length >= 2).map(row => {
+          const entry = {};
+          headers.forEach((header, i) => {
+            entry[header.toLowerCase()] = row[i] || '';
+          });
+          return entry;
+        });
+      }
+    } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(sheet);
+      parsedEntries = data.map(row => ({
+        reference: row['Référence'] || row['reference'] || '',
+        motif: row['Motif'] || row['motif'] || '',
+        agent: row['Agent'] || row['agent'] || currentAgent?.name || '',
+        date: row['Date'] || row['date'] || todayStr(),
+        time: row['Heure'] || row['time'] || '',
+        comment: row['Commentaire'] || row['comment'] || ''
+      }));
+    }
+
+    if (parsedEntries.length === 0) {
+      document.getElementById("import-entries-status").textContent = "⚠️ Aucune donnée trouvée dans le fichier.";
+      return;
+    }
+
+    document.getElementById("import-entries-preview").textContent = `${parsedEntries.length} appel(s) détecté(s)`;
+    document.getElementById("import-entries-submit").disabled = false;
+  } catch (err) {
+    document.getElementById("import-entries-status").textContent = "⚠️ Erreur de lecture : " + err.message;
+  }
+});
+
+document.getElementById("import-entries-submit").addEventListener("click", async () => {
+  if (!parsedEntries.length) return;
+
+  const submitBtn = document.getElementById("import-entries-submit");
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Importation...";
+
+  try {
+    const entries = parsedEntries.map(e => ({
+      ref: e.reference,
+      motifId: e.motif,
+      agent: e.agent,
+      date: e.date,
+      time: e.time,
+      comment: e.comment,
+      callerType: 'client',
+      ts: new Date().toISOString()
+    }));
+
+    const ok = await api.saveEntries(entries);
+    if (ok) {
+      showToast(`${entries.length} appel(s) importé(s) avec succès`, "success");
+      await loadEntries();
+      renderTable();
+      closeImportEntriesModal();
+    } else {
+      document.getElementById("import-entries-status").textContent = "⚠️ Erreur lors de l'importation.";
+    }
+  } catch (err) {
+    document.getElementById("import-entries-status").textContent = "⚠️ Erreur : " + err.message;
+  }
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Importer";
+});
+
+/* ---------- Dashboard Live Refresh ---------- */
+let refreshInterval = null;
+const REFRESH_INTERVAL_MS = 30000; // 30 seconds
+
+function startDashboardRefresh() {
+  if (refreshInterval) clearInterval(refreshInterval);
+  refreshInterval = setInterval(async () => {
+    if (currentAgent && currentRole === 'admin') {
+      try {
+        allEntries = await api.getEntries();
+        renderAdmin();
+      } catch (e) {
+        console.error('Dashboard refresh error:', e);
+      }
+    }
+  }, REFRESH_INTERVAL_MS);
+}
+
+function stopDashboardRefresh() {
+  if (refreshInterval) {
+    clearInterval(refreshInterval);
+    refreshInterval = null;
+  }
+}
+
 /* ---------- init ---------- */
 async function init(){
   updateDbStatusUI();
@@ -4407,6 +4730,8 @@ async function init(){
   document.getElementById("filter-search").addEventListener("input", debounce(renderAdmin, 150));
   document.getElementById("export-btn").addEventListener("click", exportExcel);
   document.getElementById("export-pdf-btn").addEventListener("click", exportPdf);
+  document.getElementById("import-entries-btn").addEventListener("click", openImportEntriesModal);
+  document.getElementById("trend-comparison").addEventListener("change", renderProfessionalCharts);
   document.getElementById("threshold-input").addEventListener("change", async e => {
     let v = parseInt(e.target.value) || 3;
     if(v < 2) v = 2;
@@ -4421,6 +4746,7 @@ async function init(){
 
   if(currentAgent && currentRole === 'admin'){
     enterAdminView();
+    startDashboardRefresh();
   }else if(currentAgent){
     enterAgentView();
   }else{
