@@ -3846,104 +3846,81 @@ async function exportExcel(){
   
   try {
     const rows = exportRows();
-    const logoData = await imageToDataUrl("./WAFA-IMA.png");
-    const generatedAt = new Date().toLocaleString('fr-FR');
-    const summary = exportFilterSummary();
-    const hotRefs = computeHotRefsToday();
-    const motifCounts = {};
-    rows.forEach(r => { motifCounts[r.motif] = (motifCounts[r.motif] || 0) + 1; });
-    const topMotifs = Object.entries(motifCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
-    const safe = v => escapeHtml(String(v || "-"));
-    const summaryRows = summary.map(([label, value]) => `<tr><th>${safe(label)}</th><td>${safe(value)}</td></tr>`).join("");
-    const topMotifRows = topMotifs.length ? topMotifs.map(([label, count]) => `<tr><td>${safe(label)}</td><td>${count}</td></tr>`).join("") : '<tr><td colspan="2">Aucune donnée</td></tr>';
-    const alertRows = hotRefs.length ? hotRefs.map(h => `<tr><td>${safe(h.ref)}</td><td>${h.count} codifications</td></tr>`).join("") : '<tr><td colspan="2">Aucune référence en alerte aujourd\'hui</td></tr>';
-    const tableRows = rows.length ? rows.map(r => `
-    <tr>
-      <td>${safe(r.ticket)}</td>
-      <td class="mono">${safe(r.ref)}</td>
-      <td>${safe(r.motif)}</td>
-      <td>${safe(r.caller)}</td>
-      <td>${safe(r.agent)}</td>
-      <td>${safe(r.date)}</td>
-      <td>${safe(r.time)}</td>
-      <td>${safe(r.comment)}</td>
-      <td>${safe(r.note)}</td>
-    </tr>`).join("") : '<tr><td colspan="9" class="empty">Aucun appel ne correspond aux filtres sélectionnés.</td></tr>';
+    const safe = v => String(v || "");
+    
+    // Use XLSX library for proper Excel export
+    if (typeof XLSX === 'undefined') {
+      throw new Error('Bibliothèque XLSX non disponible');
+    }
 
-  const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-  body { font-family: Arial, sans-serif; color: #334155; background: #ffffff; }
-  .report { width: 100%; }
-  .header { background: #f8fafc; border-bottom: 2px solid #e2e8f0; padding: 16px 18px; }
-  .logo { width: 58px; height: 58px; object-fit: contain; vertical-align: middle; margin-right: 14px; }
-  .title { display: inline-block; vertical-align: middle; }
-  .title h1 { margin: 0; font-size: 22px; color: #0f172a; }
-  .title p { margin: 4px 0 0; color: #64748b; font-size: 12px; }
-  .cards { margin: 18px 0; }
-  .card { display: inline-block; min-width: 180px; border: 1px solid #e2e8f0; background: #fffbeb; padding: 12px 14px; margin-right: 12px; }
-  .card .label { color: #92400e; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-  .card .value { color: #0f172a; font-size: 24px; font-weight: bold; margin-top: 4px; }
-  h2 { font-size: 14px; color: #0f172a; margin: 18px 0 8px; }
-  table { border-collapse: collapse; width: 100%; }
-  th { background: #0f172a; color: #ffffff; font-weight: bold; border: 1px solid #0f172a; padding: 8px; font-size: 12px; text-align: left; }
-  td { border: 1px solid #e2e8f0; padding: 7px; font-size: 11px; vertical-align: top; }
-  tr:nth-child(even) td { background: #f8fafc; }
-  .summary th { width: 170px; background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
-  .summary td { border-color: #cbd5e1; }
-  .mono { font-family: Consolas, monospace; }
-  .empty { text-align: center; color: #64748b; padding: 18px; }
-  .footer { margin-top: 18px; color: #94a3b8; font-size: 10px; border-top: 1px solid #e2e8f0; padding-top: 8px; }
-</style>
-</head>
-<body>
-  <div class="report">
-    <div class="header">
-      ${logoData ? `<img class="logo" src="${logoData}">` : ''}
-      <div class="title">
-        <h1>Compte rendu des appels</h1>
-        <p>WAFA IMA Assistance - Sinistre automobile - Généré le ${safe(generatedAt)}</p>
-      </div>
-    </div>
-    <div class="cards">
-      <div class="card"><div class="label">Total appels</div><div class="value">${rows.length}</div></div>
-      <div class="card"><div class="label">Période</div><div class="value" style="font-size:16px;">${safe(periodLabel())}</div></div>
-      <div class="card"><div class="label">Alertes aujourd'hui</div><div class="value">${hotRefs.length}</div></div>
-    </div>
-    <h2>Paramètres du rapport</h2>
-    <table class="summary">${summaryRows}</table>
-    <h2>Références en alerte aujourd'hui</h2>
-    <table><thead><tr><th>Référence</th><th>Nombre</th></tr></thead><tbody>${alertRows}</tbody></table>
-    <h2>Motifs les plus fréquents</h2>
-    <table><thead><tr><th>Motif</th><th>Total</th></tr></thead><tbody>${topMotifRows}</tbody></table>
-    <h2>Détail des appels</h2>
-    <table>
-      <thead><tr><th>Ticket</th><th>Référence</th><th>Motif</th><th>Qui</th><th>Chargé</th><th>Date</th><th>Heure</th><th>Commentaire</th><th>Note interne</th></tr></thead>
-      <tbody>${tableRows}</tbody>
-    </table>
-    <div class="footer">Document généré automatiquement depuis le registre des appels - WAFA IMA Assistance</div>
-  </div>
-</body>
-</html>`;
-
-  const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `compte-rendu-appels-${todayStr()}.xls`;
-  a.click();
-  URL.revokeObjectURL(url);
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Summary sheet with styling
+    const summaryData = [
+      [{ v: 'Compte rendu des appels - WAFA IMA Assistance', s: { font: { bold: true, sz: 14 }, fill: { fgColor: { rgb: "1E3A8A" } } } }],
+      [{ v: 'Généré le', s: { font: { bold: true } } }, { v: new Date().toLocaleString('fr-FR') }],
+      [''],
+      [{ v: 'Statistiques', s: { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "FEF3C7" } } } }],
+      [{ v: 'Total appels', s: { font: { bold: true } } }, { v: rows.length, s: { font: { bold: true, sz: 16 }, fill: { fgColor: { rgb: "D1FAE5" } } } }],
+      [{ v: 'Période', s: { font: { bold: true } } }, { v: periodLabel() }],
+      [''],
+      [{ v: 'Détail des appels', s: { font: { bold: true, sz: 12 }, fill: { fgColor: { rgb: "DBEAFE" } } } }],
+      ['Ticket', 'Référence', 'Motif', 'Qui', 'Chargé', 'Date', 'Heure', 'Commentaire', 'Note interne']
+    ];
+    
+    // Add header row styling
+    const headerStyle = {
+      font: { bold: true, color: { rgb: "FFFFFF" } },
+      fill: { fgColor: { rgb: "1E3A8A" } },
+      alignment: { horizontal: "center" }
+    };
+    summaryData[8] = summaryData[8].map(cell => ({ v: cell, s: headerStyle }));
+    
+    // Add data rows with alternating colors
+    rows.forEach((r, index) => {
+      const rowColor = index % 2 === 0 ? { rgb: "F8FAFC" } : { rgb: "FFFFFF" };
+      summaryData.push([
+        { v: safe(r.ticket), s: { fill: { fgColor: rowColor } } },
+        { v: safe(r.ref), s: { fill: { fgColor: rowColor }, font: { color: { rgb: "1E40AF" } } } },
+        { v: safe(r.motif), s: { fill: { fgColor: rowColor } } },
+        { v: safe(r.caller), s: { fill: { fgColor: rowColor } } },
+        { v: safe(r.agent), s: { fill: { fgColor: rowColor } } },
+        { v: safe(r.date), s: { fill: { fgColor: rowColor } } },
+        { v: safe(r.time), s: { fill: { fgColor: rowColor } } },
+        { v: safe(r.comment), s: { fill: { fgColor: rowColor } } },
+        { v: safe(r.note), s: { fill: { fgColor: rowColor } } }
+      ]);
+    });
+    
+    const ws = XLSX.utils.aoa_to_sheet(summaryData);
+    
+    // Set column widths
+    ws['!cols'] = [
+      { wch: 8 },  // Ticket
+      { wch: 15 }, // Référence
+      { wch: 25 }, // Motif
+      { wch: 10 }, // Qui
+      { wch: 15 }, // Chargé
+      { wch: 12 }, // Date
+      { wch: 8 },  // Heure
+      { wch: 30 }, // Commentaire
+      { wch: 20 }  // Note
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, 'Appels');
+    
+    // Generate and download
+    XLSX.writeFile(wb, `compte-rendu-appels-${todayStr()}.xlsx`);
+    
+    showToast("Export Excel réussi !", "success");
+  } catch (e) {
+    console.error("Export Excel error:", e);
+    showToast("Erreur lors de l'export Excel", "error");
+  }
   
   btn.disabled = false;
   btn.textContent = "Exporter Excel";
-  showToast("Export Excel réussi !", "success");
-  } catch (e) {
-    btn.disabled = false;
-    btn.textContent = "Exporter Excel";
-    showToast("Erreur lors de l'export Excel", "error");
-  }
 }
 
 function imageToDataUrl(src){
